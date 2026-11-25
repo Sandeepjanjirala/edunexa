@@ -48,7 +48,7 @@ How it is built: one `BRAND` setting (`name`, `tagline`), read by a context proc
 - Everything lives in one `school` app, including a 400-line `views.py`. It gets split into domain apps.
 - Templates and CSS are squashed onto single lines, which is unreadable in code review.
 - `from .models import *`, and role names typed as raw strings (`'teacher'`) everywhere. These become constants.
-- The README mentions ChatGPT and an "earlier marketing demo", and the first commit adds the whole project at once. Together they read as a code dump.
+- The README still describes an earlier marketing demo, and the first commit adds the whole project at once. Together they read as a code dump.
 - The product name comes from demo data ("Vidya Schools · Demo").
 
 **Add.** A REST API, background jobs, a parent portal, fees and payments, timetable, notifications, PDFs, charts, and a live demo.

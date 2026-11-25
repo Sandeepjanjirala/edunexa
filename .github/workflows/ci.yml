@@ -186,7 +186,7 @@ jobs:
         run: python e2e/rehearse_upgrade.py --database-url "postgresql://edunexa:ci-local-only@localhost:5432/upgrade?sslmode=disable" --walkthrough
       - name: A v0.1.0 database migrated to this commit, every row compared
         # v0.1.0 by its commit: version tags are pushed only after a release is approved.
-        run: python e2e/rehearse_migrations.py build --from 8f5e36b24db2e43b827a5bd97a9c3c425fca203f --database-url "postgresql://edunexa:ci-local-only@localhost:5432/migrations?sslmode=disable"
+        run: python e2e/rehearse_migrations.py build --from 96e40bea8a043e6886809b6dc5638e45d04a0ff3 --database-url "postgresql://edunexa:ci-local-only@localhost:5432/migrations?sslmode=disable"
 
   docker:
     name: Docker image builds
