@@ -25,6 +25,8 @@ CELERY_BROKER_URL = "memory://"
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+# Tests never call Gemini: the assistant's tests switch it on with a fake model.
+GEMINI_API_KEY = ""
 # The API accepts JSON only, so DRF's test client sends JSON unless told otherwise.
 REST_FRAMEWORK = {**REST_FRAMEWORK, "TEST_REQUEST_DEFAULT_FORMAT": "json"}
 # A fast hash for test accounts only. Real environments keep Django's default PBKDF2.

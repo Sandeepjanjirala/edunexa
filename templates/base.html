@@ -43,6 +43,9 @@
         </footer>
       </main>
     </div>
+    {% if can_use_assistant and request.resolver_match.url_name != "assistant" %}
+      {% include "assistant/_panel.html" %}
+    {% endif %}
   {% else %}
     <main id="main" class="auth-layout">
       <section class="auth-story">

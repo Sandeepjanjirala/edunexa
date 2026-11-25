@@ -1,0 +1,13 @@
+{% load ui %}
+<li class="assistant-exchange{% if exchange.failed %} is-failed{% endif %}">
+  <p class="assistant-question"><span class="visually-hidden">You asked: </span>{{ exchange.question }}</p>
+  <div class="assistant-answer">
+    {% icon 'sparkles' %}
+    <p><span class="visually-hidden">Assistant: </span><span data-answer>{{ exchange.answer }}</span></p>
+    {% if not exchange.failed %}
+      <button class="icon-button assistant-copy" type="button" data-copy aria-label="Copy answer" title="Copy answer">
+        {% icon 'copy' css='icon-copy' %}{% icon 'check' css='icon-copied' %}
+      </button>
+    {% endif %}
+  </div>
+</li>

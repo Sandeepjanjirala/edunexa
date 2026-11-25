@@ -1,0 +1,46 @@
+{% load ui %}
+{# The conversation, on the assistant page and in the panel beside any page. Both forms post to #}
+{# the assistant page. With htmx, the answer is added to the conversation in place; without #}
+{# JavaScript, the page reloads. While waiting, every control is disabled and "Thinking" shows. #}
+<div class="assistant">
+  <div class="assistant-log">
+    {% if not conversation %}
+      <div class="assistant-welcome">
+        {% icon 'sparkles' %}
+        <h2>Hi {{ user.first_name|default:user.display_name }}, what would you like to know?</h2>
+        <p>Ask about {{ topics }}. Answers come only from records you can already see, and the assistant can't change anything.</p>
+        <form class="assistant-suggestions" method="post" action="{% url 'assistant' %}"
+              hx-post="{% url 'assistant' %}" hx-target="#conversation" hx-swap="beforeend"
+              hx-indicator="#assistant-thinking" hx-disabled-elt=".assistant-control">
+          {% csrf_token %}
+          <input type="hidden" name="page" value="{{ page }}">
+          {% for suggestion in suggestions %}
+            <button class="chip assistant-control" type="submit" name="question" value="{{ suggestion }}">{{ suggestion }}</button>
+          {% endfor %}
+        </form>
+      </div>
+    {% endif %}
+
+    <ol class="assistant-conversation" id="conversation" aria-label="Conversation" aria-live="polite">
+      {% for exchange in conversation %}{% include "assistant/_exchange.html" %}{% endfor %}
+    </ol>
+
+    <p class="assistant-thinking" id="assistant-thinking" role="status">
+      {% icon 'sparkles' %}<span>Thinking…</span>
+    </p>
+  </div>
+
+  <form class="assistant-composer" method="post" action="{% url 'assistant' %}"
+        hx-post="{% url 'assistant' %}" hx-target="#conversation" hx-swap="beforeend"
+        hx-indicator="#assistant-thinking" hx-disabled-elt=".assistant-control">
+    {% csrf_token %}
+    <input type="hidden" name="page" value="{{ page }}">
+    <label class="visually-hidden" for="{{ form.question.id_for_label }}">Your question</label>
+    {{ form.question.errors }}
+    <div class="assistant-composer-row">
+      {{ form.question }}
+      <button class="btn assistant-control" type="submit">{% icon 'send' %}<span>Ask</span></button>
+    </div>
+    <small class="assistant-note">Enter sends, Shift+Enter adds a line. Questions and the records needed to answer them are sent to Google Gemini. Answers can be wrong: check anything important on its page.</small>
+  </form>
+</div>

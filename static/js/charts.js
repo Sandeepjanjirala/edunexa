@@ -80,10 +80,9 @@
   }
 
   draw();
-  // The theme toggle sets data-theme on <html>; without a saved choice the system setting rules.
+  // The theme toggle sets data-theme on <html>.
   new MutationObserver(draw).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["data-theme"]
   });
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
 })();

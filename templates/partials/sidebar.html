@@ -34,6 +34,9 @@
       <a href="{% url 'payment_review' %}"{% aria_current 'payment_review' %}>{% icon 'alert' %}<span>Payments to check</span></a>
     {% endif %}
     <a href="{% url 'announcements' %}"{% aria_current 'announcements' 'announcement_create' %}>{% icon 'message-square' %}<span>Announcements</span></a>
+    {% if can_use_assistant %}
+      <a href="{% url 'assistant' %}"{% aria_current 'assistant' %}>{% icon 'sparkles' %}<span>AI assistant</span></a>
+    {% endif %}
     {% if user.is_school_staff %}
       <a href="{% url 'reports' %}"{% aria_current 'reports' %}>{% icon 'bar-chart' %}<span>Performance</span></a>
     {% endif %}
