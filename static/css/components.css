@@ -447,16 +447,6 @@
   display: inline-block;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-toggle .icon-moon {
-    display: none;
-  }
-
-  :root:not([data-theme="light"]) .theme-toggle .icon-sun {
-    display: inline-block;
-  }
-}
-
 /* Page header */
 
 .eyebrow {

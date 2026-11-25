@@ -54,7 +54,7 @@ SHOTS = [
         "student-report-dark",
         "teacher.madhapur",
         record("/students/", r"/report/$"),
-        {"color_scheme": "dark"},
+        {"theme": "dark"},
     ),
     ("attendance", "teacher.madhapur", register, {}),
     ("timetable", "admin.madhapur", record("/timetable/", r"^/timetable/\d+/$"), {}),
@@ -70,7 +70,11 @@ def main():
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         for name, username, target, options in SHOTS:
-            context = browser.new_context(**{**DESKTOP, "color_scheme": "light", **options})
+            options = dict(options)
+            theme = options.pop("theme", None)
+            context = browser.new_context(**{**DESKTOP, **options})
+            if theme:  # as if picked with the theme button (static/js/theme.js reads it)
+                context.add_init_script(f"localStorage.setItem('edunexa-theme', '{theme}')")
             page = context.new_page()
             if username:
                 page.goto(BASE + "/accounts/login/")

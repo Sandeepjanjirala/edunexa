@@ -261,6 +261,15 @@ class ChartAndLayoutTests(BrowserTestCase):
         self.assertNotEqual(page.evaluate(colour), before)
         self.assertEqual(page.evaluate("document.documentElement.dataset.theme"), "dark")
 
+    def test_light_by_default_even_on_a_dark_system(self):
+        page = self.open_as(self.admin, "/", color_scheme="dark")
+        scheme = "getComputedStyle(document.documentElement).colorScheme"
+        self.assertEqual(page.evaluate(scheme), "light")
+        page.locator("[data-theme-toggle]").click()
+        self.assertEqual(page.evaluate(scheme), "dark")
+        page.reload()  # the choice is remembered
+        self.assertEqual(page.evaluate(scheme), "dark")
+
     def test_phone_layout(self):
         phone = {"viewport": {"width": 390, "height": 844}, "is_mobile": True, "has_touch": True}
         for path in (
