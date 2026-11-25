@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from apps.academics.models import Grade
 from apps.core.testing import SchoolTestCase
-from apps.fees.models import FeeHead, FeePlan, FeePlanItem, Invoice, Payment, rupees
+from apps.fees.models import FeeHead, FeePlan, FeePlanItem, Invoice, Payment, rupees, rupees_short
 
 
 class RupeesTests(SimpleTestCase):
@@ -25,6 +25,22 @@ class RupeesTests(SimpleTestCase):
         for paise, text in cases.items():
             with self.subTest(paise=paise):
                 self.assertEqual(rupees(paise), text)
+
+    def test_headline_figures_in_lakhs_and_crores(self):
+        cases = {
+            0: "₹0",
+            4500050: "₹45,000",
+            9999999_00: "₹99.99 L",
+            10000000: "₹1 L",
+            448225000: "₹44.82 L",
+            1000000000: "₹1 Cr",
+            1139800000: "₹1.13 Cr",
+            1500000000000: "₹1,500 Cr",
+            -448225000: "-₹44.82 L",
+        }
+        for paise, text in cases.items():
+            with self.subTest(paise=paise):
+                self.assertEqual(rupees_short(paise), text)
 
 
 class FeeModelTests(SchoolTestCase):
