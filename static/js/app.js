@@ -42,14 +42,13 @@ document.addEventListener("click", (event) => {
   if (event.target.closest("[data-print]")) window.print();
 });
 
-// Light/dark toggle. The choice is remembered in this browser only.
+// Light/dark toggle. Light unless the person picks dark; the choice is remembered in this
+// browser only.
 const root = document.documentElement;
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
-const currentTheme = () => root.dataset.theme || (prefersDark.matches ? "dark" : "light");
+const currentTheme = () => (root.dataset.theme === "dark" ? "dark" : "light");
 document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
   const sync = () => button.setAttribute("aria-pressed", String(currentTheme() === "dark"));
   sync();
-  prefersDark.addEventListener("change", sync);
   button.addEventListener("click", () => {
     const next = currentTheme() === "dark" ? "light" : "dark";
     root.dataset.theme = next;

@@ -1,6 +1,6 @@
 /* Design tokens: every colour, font, radius and shadow used by EduNexa.
    Dark mode redefines only these values, so components never need their own dark rules.
-   The theme follows the operating system unless the person picks one (html[data-theme]).
+   EduNexa opens in the light theme; the moon button switches to dark (html[data-theme]).
    Palette: indigo for actions, slate neutrals, a cyan accent. */
 
 :root {
@@ -54,39 +54,6 @@
   --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
   --shadow-md: 0 10px 30px rgb(15 23 42 / 0.08);
   --shadow-overlay: 0 24px 64px rgb(15 23 42 / 0.28);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --color-bg: #0b0f19;
-    --color-surface: #111827;
-    --color-surface-muted: #161e2e;
-    --color-surface-tint: #1c2140;
-    --color-border: #1f2937;
-    --color-border-strong: #374151;
-    --color-text: #f1f5f9;
-    --color-text-muted: #94a3b8;
-    --color-text-subtle: #64748b;
-    --color-primary: #818cf8;
-    --color-primary-hover: #a5b4fc;
-    --color-primary-soft: #232659;
-    --color-on-primary: #0b0f19;
-    --color-accent: #22d3ee;
-    --color-accent-soft: #083344;
-    --color-accent-strong: #67e8f9;
-    --color-focus: #a5b4fc;
-    --color-success: #4ade80;
-    --color-success-soft: #052e16;
-    --color-warning: #fbbf24;
-    --color-warning-soft: #422006;
-    --color-danger: #f87171;
-    --color-danger-soft: #450a0a;
-    --color-info: #60a5fa;
-    --color-info-soft: #172554;
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow-md: 0 10px 30px rgb(0 0 0 / 0.45);
-  }
 }
 
 :root[data-theme="dark"] {
