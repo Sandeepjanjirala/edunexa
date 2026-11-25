@@ -7,6 +7,9 @@ djangorestframework-simplejwt==5.5.1
 drf-spectacular==0.30.0
 # Swagger UI and ReDoc files, served from our own static files so the CSP stays strict.
 drf-spectacular-sidecar==2026.10.1
+# The AI assistant: a LangGraph agent on Google Gemini (apps/assistant, ADR 0015).
+langchain-google-genai==4.5.2
+langgraph==1.2.24
 packaging>=23.2
 psycopg[binary]==3.3.6
 redis==8.1.0

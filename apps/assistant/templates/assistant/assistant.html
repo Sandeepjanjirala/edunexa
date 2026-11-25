@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load ui %}
+
+{% block actions %}
+  {% if conversation %}
+    <form method="post" action="{% url 'assistant_clear' %}">
+      {% csrf_token %}
+      <button class="btn btn-secondary" type="submit">{% icon 'rotate' %}New conversation</button>
+    </form>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    {% include "assistant/_chat.html" %}
+  </section>
+{% endblock %}

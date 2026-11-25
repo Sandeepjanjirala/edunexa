@@ -1,0 +1,25 @@
+{% load ui %}
+{# The "Ask AI" button at the bottom right of every page, and the panel it opens on the right #}
+{# (static/js/app.js). The conversation is the same one as on the assistant page; htmx loads it #}
+{# when the panel is first opened. Without JavaScript the button is a link to that page. #}
+<a class="assistant-launcher" href="{% url 'assistant' %}" data-assistant-open
+   aria-controls="assistant-panel" aria-expanded="false" aria-keyshortcuts="Control+/ Meta+/" title="Ask AI (Ctrl+/)">
+  {% icon 'sparkles' %}<span>Ask AI</span>
+</a>
+<aside class="assistant-panel" id="assistant-panel" aria-labelledby="assistant-panel-title" hidden>
+  <header class="assistant-panel-header">
+    <h2 id="assistant-panel-title">{% icon 'sparkles' %}AI assistant</h2>
+    <form method="post" action="{% url 'assistant_clear' %}"
+          hx-post="{% url 'assistant_clear' %}" hx-target="#assistant-panel-body">
+      {% csrf_token %}
+      <input type="hidden" name="page" value="{{ title }}">
+      <button class="icon-button" type="submit" aria-label="New conversation" title="New conversation">{% icon 'rotate' %}</button>
+    </form>
+    <a class="icon-button" href="{% url 'assistant' %}" aria-label="Open the full page" title="Open the full page">{% icon 'maximize' %}</a>
+    <button class="icon-button" type="button" data-assistant-close aria-label="Close" title="Close (Esc)">{% icon 'x' %}</button>
+  </header>
+  <div class="assistant-panel-body" id="assistant-panel-body"
+       hx-get="{% url 'assistant_panel' %}?page={{ title|urlencode }}" hx-trigger="assistant-open once from:body">
+    <p class="assistant-loading">Loading…</p>
+  </div>
+</aside>

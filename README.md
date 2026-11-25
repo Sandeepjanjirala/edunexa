@@ -31,6 +31,7 @@ EduNexa runs the daily work of a school group: branches, classrooms and teachers
 - **Notifications:** a notification bell (it refreshes itself) and email for absences, published results, leave decisions and announcements, sent in the background.
 - **Students who leave:** an admin records the last day. The student's sign-in stops the next day; parents keep access for a grace period (30 days, or 90 while fees are owed) to download a ZIP of every report card, the fee statement and receipts. Nothing is deleted.
 - **Search:** Ctrl+K from any page finds students, people and invoices, each limited to what you may see.
+- **AI assistant:** from the "Ask AI" panel on any page, ask in plain language ("who is below 75% attendance?", "how did my child do?", "what is owed?") and a LangGraph agent on Google Gemini answers from read-only tools that see only what you may see. Switched on by `GEMINI_API_KEY`; see [ADR 0015](docs/adr/0015-ai-assistant.md).
 - **Dashboards:** for each role, with attendance charts, students below 75% attendance, and what is waiting for you.
 - **Reports:** report-card PDFs, printable student reports, subject performance analysis, and CSV exports scoped to your access and protected against spreadsheet formula injection.
 - **Security:** login throttling, a forced password change on first sign-in, accounts switched off lose their sessions and tokens at once, a strict Content-Security-Policy (no inline scripts or styles), HSTS and secure cookies, and signed-in pages are never cached. See [SECURITY.md](docs/SECURITY.md).
