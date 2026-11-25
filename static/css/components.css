@@ -493,6 +493,25 @@
   margin-bottom: 0;
 }
 
+/* A card's list or table that would run long: it scrolls within the card, below the header. */
+.card-scroll {
+  flex: 1;
+  min-height: 0;
+  max-height: 25rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.list.card-scroll {
+  padding-right: 0.5rem;
+}
+
+.card-scroll .table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .card-narrow {
   max-width: 46rem;
 }
@@ -820,6 +839,25 @@
   margin: 0.4rem 0 1rem;
 }
 
+/* The branch filter beside the date in a page header: label, select and Apply on one line. */
+.header-filter,
+.header-filter > div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-filter label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.header-filter select {
+  width: auto;
+  min-width: 10rem;
+}
+
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -1051,6 +1089,44 @@ a.list-item:hover strong {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
   margin: 1rem 0;
+}
+
+/* The six fee figures: three to a line, all six on one line on a wide screen. Lakhs and crores
+   of rupees are long, so the figures shrink with the screen. */
+.breakdown-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+
+.breakdown.breakdown-row strong {
+  font-size: clamp(1.05rem, 0.8rem + 0.7vw, 1.5rem);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1700px) {
+  .breakdown-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* On a phone, one line per figure: the label on the left, the figure on the right. */
+@media (max-width: 560px) {
+  .breakdown.breakdown-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .breakdown-row > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .breakdown.breakdown-row strong {
+    font-size: 1.05rem;
+  }
 }
 
 .breakdown > div {
