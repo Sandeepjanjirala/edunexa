@@ -18,6 +18,8 @@ EduNexa runs the daily work of a school group: branches, classrooms and teachers
 | ![Timetable editing](docs/screenshots/timetable.png) | ![Student report in dark mode](docs/screenshots/student-report-dark.png) |
 | **Search with Ctrl+K** | **Parent portal on a phone** |
 | ![Global search](docs/screenshots/search.png) | ![Parent overview on a phone](docs/screenshots/parent-phone.png) |
+| **AI assistant beside any page** | **REST API (OpenAPI docs)** |
+| ![AI assistant answering a teacher's question](docs/screenshots/ai-assistant.png) | ![API documentation](docs/screenshots/api-docs.png) |
 
 ## What it does
 
