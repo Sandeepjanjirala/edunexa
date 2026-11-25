@@ -32,6 +32,24 @@ def rupees(paise):
     return f"{sign}₹{digits}.{fraction:02d}"
 
 
+LAKH, CRORE = 100_000 * 100, 10_000_000 * 100  # in paise
+
+
+def rupees_short(paise):
+    """A headline figure in lakhs and crores: 113980000000 -> "₹1.13 Cr", 448225000 ->
+    "₹44.82 L"; below a lakh, whole rupees: 4500050 -> "₹45,000". Rounded down, so a figure
+    never reads as more than it is (₹99,99,999 is "₹99.99 L", not "₹100 L")."""
+    sign = "-" if paise < 0 else ""
+    paise = abs(paise)
+    for unit, name in ((CRORE, "Cr"), (LAKH, "L")):
+        if paise >= unit:
+            whole, hundredths = divmod(paise * 100 // unit, 100)
+            figure = rupees(whole * 100)[:-3]  # "₹1,500" for 1,500 crore
+            figure += f".{hundredths:02d}".rstrip("0").rstrip(".")
+            return f"{sign}{figure} {name}"
+    return sign + rupees(paise - paise % 100)[:-3]
+
+
 class FeeHead(ValidatedModel):
     """A kind of charge, such as Tuition or Transport."""
 

@@ -8,8 +8,8 @@
 
 {% block content %}
   <div class="grid-stats">
-    {% include "components/stat_card.html" with label="Collected today" value=fees.collected_today|rupees hint="All payments received today" only %}
-    {% include "components/stat_card.html" with label="Outstanding" value=fees.outstanding|rupees hint="Still owed on open invoices" only %}
+    {% include "components/stat_card.html" with label="Collected today" value=fees.collected_today|rupees_short exact=fees.collected_today|rupees hint="All payments received today" only %}
+    {% include "components/stat_card.html" with label="Outstanding" value=fees.outstanding|rupees_short exact=fees.outstanding|rupees hint="Still owed on open invoices" only %}
     {% include "components/stat_card.html" with label="Overdue invoices" value=fees.overdue hint="Past their due date" only %}
     {% include "components/stat_card.html" with label="Payments to check" value=fees.to_check hint="Review or held for refund" only %}
   </div>
