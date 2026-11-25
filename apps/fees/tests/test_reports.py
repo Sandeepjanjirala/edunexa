@@ -36,6 +36,14 @@ class DashboardTests(FeesTestCase):
         self.client.force_login(self.principal)
         self.assertIsNone(self.client.get(reverse("dashboard")).context["fees"])
 
+    def test_no_invoices_yet_points_to_fee_setup(self):
+        self.client.force_login(self.admin)
+        page = self.client.get(reverse("dashboard"))
+        self.assertContains(page, "No invoices yet.")
+        self.assertNotContains(page, "Billed")
+        self.issue()
+        self.assertContains(self.client.get(reverse("dashboard")), "Billed")
+
     def test_parents_see_fees_due_with_pay_now(self):
         alice = self.alices()
         self.client.force_login(self.parent)

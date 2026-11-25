@@ -7,6 +7,12 @@
 {% endblock %}
 
 {% block actions %}
+  {% if user.system_admin %}
+    <form class="header-filter" method="get">
+      {% include "components/branch_select.html" %}
+      <button class="btn btn-secondary" type="submit">{% icon 'filter' %}Apply</button>
+    </form>
+  {% endif %}
   <span class="date-label">{% icon 'calendar' %}{{ today|date:"l, d M Y" }}</span>
 {% endblock %}
 
@@ -18,17 +24,14 @@
     {% include "components/logo_mark.html" %}
   </section>
 
-  {% if user.system_admin %}
-    <form class="filter-bar" method="get">
-      {% include "components/branch_select.html" %}
-      <button class="btn btn-secondary" type="submit">{% icon 'filter' %}Apply</button>
-    </form>
-  {% endif %}
-
   <div class="grid-stats">
     {% include "components/stat_card.html" with label="Active students" value=stats.students hint="Within your access" only %}
     {% include "components/stat_card.html" with label="Classrooms" value=stats.classes hint="Across academic years" only %}
-    {% include "components/stat_card.html" with label="Today’s attendance" value=stats.attendance unit="%" hint="From recorded registers" only %}
+    {% if stats.attendance is None %}
+      {% include "components/stat_card.html" with label="Today’s attendance" value=None hint="No registers recorded yet today" only %}
+    {% else %}
+      {% include "components/stat_card.html" with label="Today’s attendance" value=stats.attendance unit="%" hint="From recorded registers" only %}
+    {% endif %}
     {% include "components/stat_card.html" with label="Results to review" value=stats.pending hint="Awaiting principal approval" only %}
   </div>
 
@@ -57,18 +60,49 @@
         <div><h2>Fees</h2><p>Invoices not cancelled{% if selected_branch %}, {{ selected_branch.name }}{% endif %}</p></div>
         <a href="{% url 'collections' %}">Collections {% icon 'arrow-right' %}</a>
       </div>
-      <div class="breakdown">
-        <div><span>Billed</span><strong>{{ fees.billed|rupees }}</strong></div>
-        <div><span>Collected</span><strong>{{ fees.collected|rupees }}</strong></div>
-        <div><span>Outstanding</span><strong>{{ fees.outstanding|rupees }}</strong></div>
-        <div><span>Overdue invoices</span><strong>{{ fees.overdue }}</strong></div>
-        <div><span>Collected today</span><strong>{{ fees.collected_today|rupees }}</strong></div>
-        <div><span>Payments to check</span><strong>{{ fees.to_check }}</strong></div>
-      </div>
+      {% if fees.billed or fees.to_check %}
+        <div class="breakdown breakdown-row">
+          <div><span>Billed</span><strong title="{{ fees.billed|rupees }}">{{ fees.billed|rupees_short }}</strong></div>
+          <div><span>Collected</span><strong title="{{ fees.collected|rupees }}">{{ fees.collected|rupees_short }}</strong></div>
+          <div><span>Outstanding</span><strong title="{{ fees.outstanding|rupees }}">{{ fees.outstanding|rupees_short }}</strong></div>
+          <div><span>Overdue invoices</span><strong>{{ fees.overdue }}</strong></div>
+          <div><span>Collected today</span><strong title="{{ fees.collected_today|rupees }}">{{ fees.collected_today|rupees_short }}</strong></div>
+          <div><span>Payments to check</span><strong>{{ fees.to_check }}</strong></div>
+        </div>
+      {% else %}
+        <p class="empty">No invoices yet. Issue them from <a href="{% url 'fee_setup' %}">Fee setup</a>.</p>
+      {% endif %}
     </section>
   {% endif %}
 
-  <div class="grid-main">
+  <div class="dashboard-row">
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2>Attendance, last 30 days</h2>
+          <p>Present and late, out of every student marked</p>
+        </div>
+      </div>
+      {% if has_trend %}
+        <div class="chart"><canvas id="attendance-trend" role="img" aria-label="Line chart of the daily attendance rate over the last 30 days"></canvas></div>
+      {% else %}
+        <p class="empty">No registers recorded in the last 30 days.</p>
+      {% endif %}
+    </section>
+    {% if charts.branches %}
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Branches compared</h2>
+            <p>Attendance over the last 30 days</p>
+          </div>
+        </div>
+        <div class="chart"><canvas id="branch-comparison" role="img" aria-label="Bar chart comparing each branch's attendance rate over the last 30 days"></canvas></div>
+      </section>
+    {% endif %}
+  </div>
+
+  <div class="dashboard-row">
     <section class="card">
       <div class="card-header">
         <div>
@@ -77,7 +111,7 @@
         </div>
         <a href="{% url 'attendance' %}">Open attendance {% icon 'arrow-right' %}</a>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap card-scroll">
         <table class="table">
           <thead>
             <tr><th>Classroom</th><th class="num">Students</th><th>Class teacher</th><th>Register</th></tr>
@@ -106,47 +140,27 @@
         </table>
       </div>
     </section>
-
     <section class="card">
       <div class="card-header">
         <div>
-          <h2>Recent assessments</h2>
-          <p>Drafts, reviews and results</p>
+          <h2>Attendance below 75%</h2>
+          <p>Lowest first, this academic year</p>
         </div>
       </div>
-      <div class="list">
-        {% for exam in recent_exams %}
-          <a class="list-item" href="{% url 'exam_detail' exam.pk %}">
-            <span class="subject-icon" aria-hidden="true">{{ exam.subject.name|first }}</span>
-            <span class="list-item-body">
-              <strong>{{ exam.title }}</strong>
-              <small>{{ exam.subject.name }} · {{ exam.classroom.grade }}–{{ exam.classroom.section }}</small>
-            </span>
-            <span class="badge badge-{{ exam.status }}">{{ exam.get_status_display }}</span>
+      <div class="list card-scroll">
+        {% for row in low_attendance %}
+          <a class="list-item" href="{% url 'student_report' row.student_id %}">
+            <span class="list-item-body"><strong>{{ row.name }}</strong><small>{{ row.admission_number }} · {{ row.classroom }}</small></span>
+            <span class="badge badge-warning">{{ row.rate }}%</span>
           </a>
         {% empty %}
-          <p class="empty">Assessments will appear here once created.</p>
+          <p class="empty">Every student is at 75% or above.</p>
         {% endfor %}
       </div>
-      <a class="card-footer-link" href="{% url 'exams' %}">View assessments {% icon 'arrow-right' %}</a>
     </section>
   </div>
 
-  <div class="grid-two">
-    <section class="card">
-      <div class="card-header">
-        <div>
-          <h2>Attendance, last 30 days</h2>
-          <p>Present and late, out of every student marked</p>
-        </div>
-      </div>
-      {% if has_trend %}
-        <div class="chart"><canvas id="attendance-trend" role="img" aria-label="Line chart of the daily attendance rate over the last 30 days"></canvas></div>
-      {% else %}
-        <p class="empty">No registers recorded in the last 30 days.</p>
-      {% endif %}
-    </section>
-
+  <div class="dashboard-row even">
     <section class="card">
       <div class="card-header">
         <div>
@@ -154,7 +168,7 @@
           <p>Mark sheets, approvals and leave requests</p>
         </div>
       </div>
-      <div class="list">
+      <div class="list card-scroll">
         {% for exam in to_do.drafts %}
           <a class="list-item" href="{% url 'exam_detail' exam.pk %}">
             <span class="list-item-body"><strong>Enter marks: {{ exam.title }}</strong><small>{{ exam.subject.name }} · {{ exam.classroom.grade }}–{{ exam.classroom.section }}</small></span>
@@ -178,39 +192,29 @@
         {% endif %}
       </div>
     </section>
-  </div>
-
-  <div class="grid-two">
     <section class="card">
       <div class="card-header">
         <div>
-          <h2>Attendance below 75%</h2>
-          <p>Lowest first, this academic year</p>
+          <h2>Recent assessments</h2>
+          <p>Drafts, reviews and results</p>
         </div>
       </div>
-      <div class="list">
-        {% for row in low_attendance %}
-          <a class="list-item" href="{% url 'student_report' row.student_id %}">
-            <span class="list-item-body"><strong>{{ row.name }}</strong><small>{{ row.admission_number }} · {{ row.classroom }}</small></span>
-            <span class="badge badge-warning">{{ row.rate }}%</span>
+      <div class="list card-scroll">
+        {% for exam in recent_exams %}
+          <a class="list-item" href="{% url 'exam_detail' exam.pk %}">
+            <span class="subject-icon" aria-hidden="true">{{ exam.subject.name|first }}</span>
+            <span class="list-item-body">
+              <strong>{{ exam.title }}</strong>
+              <small>{{ exam.subject.name }} · {{ exam.classroom.grade }}–{{ exam.classroom.section }}</small>
+            </span>
+            <span class="badge badge-{{ exam.status }}">{{ exam.get_status_display }}</span>
           </a>
         {% empty %}
-          <p class="empty">Every student is at 75% or above.</p>
+          <p class="empty">Assessments will appear here once created.</p>
         {% endfor %}
       </div>
+      <a class="card-footer-link" href="{% url 'exams' %}">View assessments {% icon 'arrow-right' %}</a>
     </section>
-
-    {% if charts.branches %}
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Branches compared</h2>
-            <p>Attendance over the last 30 days</p>
-          </div>
-        </div>
-        <div class="chart"><canvas id="branch-comparison" role="img" aria-label="Bar chart comparing each branch's attendance rate over the last 30 days"></canvas></div>
-      </section>
-    {% endif %}
   </div>
 
   {{ charts|json_script:"dashboard-charts" }}
