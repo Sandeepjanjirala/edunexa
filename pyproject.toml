@@ -53,6 +53,7 @@ name = "Apps import only from the apps below them"
 type = "layers"
 layers = [
     "apps.demo",
+    "apps.assistant",
     "apps.reports",
     "apps.exams",
     "apps.attendance",

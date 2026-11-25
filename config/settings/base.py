@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     "apps.attendance",
     "apps.exams",
     "apps.reports",
+    "apps.assistant",
     "apps.demo",
 ]
 MIDDLEWARE = [
@@ -128,6 +129,7 @@ TEMPLATES = [
                 "apps.organization.context_processors.workspace",
                 "apps.communication.context_processors.notifications",
                 "apps.reports.context_processors.search",
+                "apps.assistant.context_processors.assistant",
                 "apps.demo.context_processors.demo",
             ]
         },
@@ -212,6 +214,13 @@ if DEMO_MODE:
         "task": "apps.demo.tasks.reset_demo_nightly",
         "schedule": crontab(hour=3, minute=45),
     }
+
+# The AI assistant (docs/adr/0015-ai-assistant.md): a Gemini model answering questions from
+# read-only tools over the user's own records. Without a key the assistant is switched off.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+ASSISTANT_MODEL = os.getenv("ASSISTANT_MODEL", "gemini-3.5-flash-lite")
+# Questions each person may ask per hour: every question is a paid call to the model.
+ASSISTANT_HOURLY_LIMIT = int(os.getenv("ASSISTANT_HOURLY_LIMIT", "30"))
 
 CACHES = {
     "default": (

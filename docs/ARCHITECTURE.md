@@ -34,7 +34,7 @@ flowchart TB
 | 1 | `organization`, `audit`, `accounts` | School group and branches; the activity log; users, roles and sign-in |
 | 2 | `academics`, `students` | Years, terms, grades, classrooms, subjects, teacher assignments, periods and timetables; students, enrollments, guardians, CSV import and year-end promotion |
 | 3 | `communication`, `fees`, `attendance`, `exams` | Announcements and notifications; fee plans, invoices, payments, receipts and payment providers; daily registers and leave; exams, marks and the result workflow |
-| 4 | `reports`, `demo` | Dashboards, reports and report-card PDFs that read from everything; sample data |
+| 4 | `reports`, `assistant`, `demo` | Dashboards, reports and report-card PDFs that read from everything; the AI assistant, whose tools read through the same selectors ([ADR 0015](adr/0015-ai-assistant.md)); sample data |
 
 Two places needed care to keep this rule:
 

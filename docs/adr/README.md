@@ -18,3 +18,4 @@ Short notes on the main technical choices: the context, the decision, and what i
 | [0012](0012-import-and-promotion.md) | Bulk changes: a dry-run preview, then all or nothing | Accepted |
 | [0013](0013-leaving-and-access.md) | Leaving school: records kept, sign-in ended, a limited grace period | Accepted |
 | [0014](0014-demo-mode.md) | Demo mode: a public showcase that can never touch real data | Accepted |
+| [0015](0015-ai-assistant.md) | An AI assistant (LangGraph, Gemini) that reads only through the user's own scope | Accepted |

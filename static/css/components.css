@@ -1359,3 +1359,339 @@ details summary {
 .register-tools {
   margin-bottom: 0.75rem;
 }
+
+/* AI assistant: the conversation (questions on the right, answers on the left), a "Thinking"
+   line htmx shows while a question is out, and the question box at the bottom. The same
+   conversation fills the assistant page and the panel beside any page (further down). */
+.assistant,
+.assistant-log {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.assistant-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 0.5rem 0.5rem;
+  text-align: center;
+}
+
+.assistant-welcome > .icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-primary);
+}
+
+.assistant-welcome h2 {
+  font-size: 1.25rem;
+}
+
+.assistant-welcome p {
+  max-width: 34rem;
+  color: var(--color-text-muted);
+}
+
+/* After the first answer arrives in place, the welcome gives way to the conversation. */
+.assistant:has(.assistant-exchange) .assistant-welcome {
+  display: none;
+}
+
+.assistant-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.assistant-suggestions .chip {
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.assistant-suggestions .chip:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.assistant-conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assistant-conversation:empty {
+  display: none;
+}
+
+.assistant-exchange {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.assistant-question {
+  align-self: flex-end;
+  max-width: min(36rem, 85%);
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-sm) var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.assistant-answer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  max-width: min(46rem, 100%);
+}
+
+.assistant-answer > .icon,
+.assistant-thinking > .icon {
+  flex: none;
+  margin-top: 0.55rem;
+  color: var(--color-primary);
+}
+
+.assistant-answer p {
+  min-width: 0;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-sm);
+  background: var(--color-surface-muted);
+  white-space: pre-wrap; /* the model's line breaks, and the indentation of any code */
+  overflow-wrap: anywhere;
+}
+
+/* Copy shows on hover or focus; it needs JavaScript, so it is hidden without. */
+.assistant-copy {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  opacity: 0;
+}
+
+.assistant-exchange:hover .assistant-copy,
+.assistant-copy:focus-visible,
+.assistant-copy.is-copied {
+  opacity: 1;
+}
+
+.assistant-copy .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+:root:not(.js) .assistant-copy,
+.assistant-copy .icon-copied,
+.assistant-copy.is-copied .icon-copy {
+  display: none;
+}
+
+.assistant-copy.is-copied .icon-copied {
+  display: block;
+  color: var(--color-success);
+}
+
+.is-failed .assistant-answer p {
+  border-color: transparent;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.assistant-thinking {
+  display: none;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: var(--color-text-muted);
+}
+
+.assistant-thinking > span {
+  padding-top: 0.45rem;
+}
+
+.assistant-thinking.htmx-request {
+  display: flex;
+}
+
+.assistant-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.assistant-composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.assistant-composer textarea {
+  flex: 1;
+  resize: vertical;
+}
+
+.assistant-note {
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 560px) {
+  .assistant-composer-row .btn span {
+    display: none;
+  }
+}
+
+/* The "Ask AI" button at the bottom right of every page, and the panel it opens on the right.
+   On a wide screen the page makes room for the panel; on a narrow one the panel covers it. */
+.assistant-launcher {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--shadow-overlay);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.assistant-launcher:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-on-primary);
+  transform: translateY(-2px);
+}
+
+.assistant-open .assistant-launcher {
+  display: none;
+}
+
+.assistant-panel {
+  --assistant-width: 26rem;
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--assistant-width), 100vw);
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-overlay);
+  animation: assistant-slide-in 0.2s ease-out;
+}
+
+.assistant-panel[hidden] {
+  display: none;
+}
+
+@keyframes assistant-slide-in {
+  from {
+    transform: translateX(2rem);
+    opacity: 0;
+  }
+}
+
+.assistant-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: var(--topbar-height);
+  padding: 0 0.75rem 0 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.assistant-panel-header h2 {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.assistant-panel-header h2 .icon {
+  color: var(--color-primary);
+}
+
+.assistant-panel-body,
+.assistant-panel .assistant {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.assistant-panel .assistant {
+  gap: 0;
+}
+
+.assistant-panel .assistant-log {
+  flex: 1;
+  padding: 1.25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.assistant-panel .assistant-welcome {
+  padding-top: 0.5rem;
+}
+
+.assistant-panel .assistant-welcome h2 {
+  font-size: 1.1rem;
+}
+
+.assistant-panel .assistant-question {
+  max-width: 90%;
+}
+
+.assistant-panel .assistant-composer {
+  padding: 0.75rem 1.25rem 1rem;
+}
+
+.assistant-panel .assistant-composer-row .btn span {
+  display: none;
+}
+
+.assistant-loading {
+  padding: 1.25rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 1600px) {
+  .assistant-open .shell {
+    margin-right: 26rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .assistant-launcher {
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  .assistant-panel {
+    border-left: 0;
+  }
+}
+
+@media print {
+  .assistant-launcher,
+  .assistant-panel {
+    display: none !important;
+  }
+}
