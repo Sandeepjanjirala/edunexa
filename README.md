@@ -46,7 +46,7 @@ EduNexa runs the daily work of a school group: branches, classrooms and teachers
 | What | How |
 |---|---|
 | No lost updates | Registers and mark sheets carry a version number, and writes lock the classroom row. Two people saving at once gives one save and one "reload" message, tested with real threads on PostgreSQL. |
-| Rules the database enforces | One register per class per day, scores never above the maximum, valid role/branch combinations, no class or teacher booked twice in one timetable period: these are constraints in the database, not just form checks. |
+| Rules the database enforces | One register per class per day, one mark per student per exam (a score or absent, never both), valid role/branch combinations, no class or teacher booked twice in one timetable period: these are constraints in the database, not just form checks. Rules that compare with another table, such as a score never above the exam's maximum, are checked by the model on every save. |
 | Bulk changes that are all or nothing | A CSV import is checked by running every row through the real services and rolling back; confirming replays them in one transaction. Promotion locks the classes and skips students already moved, so a double click or two leaders at once move each student once. See [ADR 0012](docs/adr/0012-import-and-promotion.md). |
 | Business logic outside views | Each domain app has `selectors` (reads already limited to the user's scope), `policies` (who may do what) and `services` (writes with transactions, locks and audit). Views only parse input and render output. |
 | One set of rules for web and API | The web pages and the REST API call the same selectors, policies and services, and every service checks its own policy, so the two can't disagree. See [ADR 0006](docs/adr/0006-rest-api.md). |
@@ -60,7 +60,7 @@ EduNexa runs the daily work of a school group: branches, classrooms and teachers
 | Production ready, and rehearsed | Caddy (automatic HTTPS) in front of Gunicorn, Celery and PostgreSQL in [`deploy/`](deploy/). Production refuses to start with incomplete settings. A script builds that stack locally under production settings and checks HTTPS, headers and cookies, runs the API checks, crawls every role's pages in a real browser, and runs a backup and restore drill that compares every table. See [DEPLOYMENT.md](docs/DEPLOYMENT.md). |
 | Tested in a real browser | Playwright drives Chromium against the real Content-Security-Policy: one-tap attendance, timetable editing, live filters, Ctrl+K search, the bell, dialogs, charts, keyboard use and phone layouts. A crawl opens every page for every role and fails on any console error. |
 | Saves that scale | A register or mark sheet is checked row by row, then written in bulk, in the same number of queries for 5 students or 50 (a test checks this). |
-| Tested | 515 tests (plus 1,182 table-driven cases, such as every API endpoint for every role) with 95% branch coverage, run on PostgreSQL. CI also runs lint, a migration check, an OpenAPI schema check, a dependency vulnerability scan, the browser tests, the Docker Compose stack with 69 API checks, the upgrade and migration rehearsals, and the production rehearsal. |
+| Tested | 539 tests (plus about 1,200 table-driven cases, such as every API endpoint for every role) with about 94% coverage, run on PostgreSQL; CI fails below 85%. CI also runs lint, a migration check, an OpenAPI schema check, a dependency vulnerability scan, the browser tests, the Docker Compose stack with 69 API checks, the upgrade and migration rehearsals, and the production rehearsal. |
 
 ## Run it on your computer
 
@@ -177,4 +177,8 @@ Initial passwords must be shared privately, and everyone must change theirs at f
 
 ## Status
 
-All six phases are built: the foundation and rebrand, the REST API, background jobs with the parent portal, fees with online payments (test mode), academic operations (grades and terms, a versioned grading scale, timetables, CSV import and year-end promotion), and the release (deployment, leavers' access, demo mode, search, real-browser tests and a security review). The production stack is rehearsed locally; going live on a server is the next step. See the [roadmap](docs/DESIGN.md#14-roadmap) and the [backlog](docs/BACKLOG.md).
+All six phases are built: the foundation and rebrand, the REST API, background jobs with the parent portal, fees with online payments (test mode), academic operations (grades and terms, a versioned grading scale, timetables, CSV import and year-end promotion), and the release (deployment, leavers' access, demo mode, search, real-browser tests and a security review). A demo instance runs in demo mode behind nginx and Cloudflare; the self-contained Caddy stack is rehearsed in CI. Payments stay in test mode. See the [deployment guide](docs/DEPLOYMENT.md), the [roadmap](docs/DESIGN.md#14-roadmap) and the [backlog](docs/BACKLOG.md).
+
+## License
+
+[MIT](LICENSE).

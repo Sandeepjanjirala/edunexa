@@ -7,7 +7,9 @@
 # can itself be undone. Migrations then bring the data up to this release's code.
 set -eu
 cd "$(dirname "$0")"
-compose="docker compose -f compose.production.yaml ${COMPOSE_EXTRA:-}"
+# EDUNEXA_COMPOSE_FILE picks the stack: deploy/compose.production.yaml (Caddy, the default) or,
+# behind an existing nginx, ../docker-compose.prod.yml.
+compose="docker compose -f ${EDUNEXA_COMPOSE_FILE:-compose.production.yaml} ${COMPOSE_EXTRA:-}"
 archive="${1:-}"
 if [ ! -f "$archive" ] || [ "${2:-}" != "--yes" ]; then
     echo "usage: $0 <archive made by backup.sh> --yes   (replaces the current database)" >&2
@@ -23,7 +25,7 @@ if ! $compose exec -T db pg_restore --username edunexa --dbname edunexa_restore 
     echo "The archive could not be restored; nothing was changed." >&2
     exit 1
 fi
-$compose stop caddy web worker beat
+$compose stop web worker beat
 $psql --command "ALTER DATABASE edunexa RENAME TO $replaced" \
       --command "ALTER DATABASE edunexa_restore RENAME TO edunexa"
 $compose run --rm --no-deps web python manage.py migrate --noinput

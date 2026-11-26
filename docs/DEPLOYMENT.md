@@ -1,8 +1,9 @@
 # Deploying EduNexa
 
-EduNexa runs on one Linux server with Docker Compose: Caddy (HTTPS) in front of the app, a Celery worker and scheduler, PostgreSQL and Redis. Everything needed is in [`deploy/`](../deploy/). **Nothing is deployed online yet**: no hosting has been bought, and going live needs the owner's approval.
+EduNexa runs on one Linux server with Docker Compose: the app, a Celery worker and scheduler, PostgreSQL and Redis. There are two ways to put it online:
 
-The whole stack has been rehearsed locally under production settings (`python e2e/rehearse_deploy.py`): HTTPS, the security headers, the API checks, a real browser for every role, and a backup and restore drill.
+- **On its own server**, with Caddy in front for HTTPS: everything is in [`deploy/`](../deploy/). This is the stack CI rehearses under production settings (`python e2e/rehearse_deploy.py`): HTTPS, the security headers, the API checks, a real browser for every role, and a backup and restore drill.
+- **Behind an nginx and Cloudflare already on the server**, next to other sites: [`docker-compose.prod.yml`](../docker-compose.prod.yml) at the repository root. This is how the demo instance runs. See [below](#behind-an-existing-nginx-and-cloudflare).
 
 ## What runs
 
@@ -89,6 +90,7 @@ All settings live in `deploy/.env`, which is ignored by Git; see [`env.productio
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | Optional, **test keys only** (`rzp_test_…`). Without them the Sandbox takes test payments. Webhook: `https://<host>/api/v1/payments/webhook/razorpay/` |
 | `LEAVER_GRACE_DAYS`, `LEAVER_FEES_GRACE_DAYS` | Parents' access after their children leave: 30 days, or 90 while fees are owed ([ADR 0013](adr/0013-leaving-and-access.md)) |
 | `WEB_CONCURRENCY`, `WORKER_CONCURRENCY` | Gunicorn and Celery processes (3 and 2 suit the server above) |
+| `GEMINI_API_KEY`, `ASSISTANT_MODEL`, `ASSISTANT_HOURLY_LIMIT` | Optional: the AI assistant is switched on only when `GEMINI_API_KEY` is set. Questions, and the records needed to answer them, are sent to Google ([ADR 0015](adr/0015-ai-assistant.md)) |
 | `DEMO_MODE`, `DEMO_SIZE` | The public demo only ([below](#the-public-demo)) |
 
 ## Releasing a new version
@@ -175,6 +177,39 @@ Use a separate server or database from any real school. The reset refuses any da
 5. Check the portal on the phones and browsers the pilot will use. Layouts have been checked in a real browser at phone and desktop sizes, not on real devices.
 6. Payments stay in test mode. Going live needs live keys, a reviewed change to the test-mode guard in `config/settings/base.py`, a live check of the checkout page's CSP, the Sandbox disabled, and finance sign-off ([backlog](BACKLOG.md)).
 
+## Behind an existing nginx and Cloudflare
+
+Use this when the server already runs nginx for other sites. [`docker-compose.prod.yml`](../docker-compose.prod.yml) runs the same services without Caddy, and publishes the app only on the server itself (`127.0.0.1:${PORT}`, 8002 by default); nginx forwards the domain to it. A small server (1 vCPU, 4 GB RAM) is enough for a demo: Gunicorn has 2 workers and Celery 1.
+
+1. **DNS:** in Cloudflare, add an `A` record for the subdomain pointing at the server, proxied (orange cloud), with SSL/TLS mode **Full (strict)**.
+2. **The app:**
+
+   ```sh
+   git clone https://github.com/Sandeepjanjirala/edunexa.git && cd edunexa
+   cp .env.production.example .env && chmod 600 .env
+   # Fill in .env: PORT, SITE_DOMAIN, SITE_URL, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, TRUST_PROXY=1,
+   # DJANGO_SECRET_KEY, POSTGRES_PASSWORD, and DEMO_MODE (1 for a demo; 0 needs EMAIL_HOST).
+   docker compose -f docker-compose.prod.yml up -d --build
+   docker compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
+   docker compose -f docker-compose.prod.yml exec web python manage.py check --deploy
+   docker compose -f docker-compose.prod.yml exec web python manage.py seed_demo   # demo only
+   ```
+
+3. **nginx:** copy [`deploy/nginx/edunexa.sandeepwebsolutions.in.conf`](../deploy/nginx/edunexa.sandeepwebsolutions.in.conf) to `/etc/nginx/sites-available/`, change `server_name`, link it into `sites-enabled`, then `sudo nginx -t && sudo systemctl reload nginx`.
+4. **Certificate:** `sudo certbot --nginx -d <your domain>` adds HTTPS and the redirect.
+5. **Accept web traffic only from Cloudflare.** Otherwise anyone who learns the server's address can bypass Cloudflare. Allow ports 80 and 443 only from [Cloudflare's IP ranges](https://www.cloudflare.com/ips/) (with `ufw` or the provider's firewall), and keep the server's address out of documents and screenshots.
+
+Releases and backups work as above with this compose file:
+
+```sh
+git pull
+EDUNEXA_COMPOSE_FILE=../docker-compose.prod.yml deploy/backup.sh     # always, before migrating
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
+```
+
+Run the same backup line nightly from cron, and copy `deploy/backups/` off the server. Restores use `EDUNEXA_COMPOSE_FILE=../docker-compose.prod.yml deploy/restore.sh <archive> --yes`. Never run `docker compose down -v`: it deletes the database volume.
+
 ## Without Docker
 
 The same settings work on any host that runs Python 3.12, PostgreSQL and Redis behind an HTTPS proxy. Use `config.settings.prod`, then:
@@ -185,4 +220,4 @@ The same settings work on any host that runs Python 3.12, PostgreSQL and Redis b
 
 Set `TRUST_PROXY=1` only if the proxy overwrites `X-Forwarded-Proto`.
 
-References: [Django's deployment checklist](https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/), [Caddy's automatic HTTPS](https://caddyserver.com/docs/automatic-https).
+References: [Django's deployment checklist](https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/), [Caddy's automatic HTTPS](https://caddyserver.com/docs/automatic-https), [Cloudflare's IP ranges](https://www.cloudflare.com/ips/).
