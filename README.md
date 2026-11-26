@@ -62,6 +62,28 @@ EduNexa runs the daily work of a school group: branches, classrooms and teachers
 | Saves that scale | A register or mark sheet is checked row by row, then written in bulk, in the same number of queries for 5 students or 50 (a test checks this). |
 | Tested | 539 tests (plus about 1,200 table-driven cases, such as every API endpoint for every role) with about 94% coverage, run on PostgreSQL; CI fails below 85%. CI also runs lint, a migration check, an OpenAPI schema check, a dependency vulnerability scan, the browser tests, the Docker Compose stack with 69 API checks, the upgrade and migration rehearsals, and the production rehearsal. |
 
+## Deploy on the shared Ubuntu VPS
+
+For host Nginx, Cloudflare Full (strict), port 8002 and the existing Video Studio
+server, follow [the VPS runbook](docs/VPS_DEPLOYMENT.md). Keep the existing `.env`
+and Compose project when upgrading; do not replace production credentials.
+
+```bash
+# After first-time environment, DNS and TLS setup in the runbook:
+bash scripts/deploy.sh
+# Future approved updates, health verification and backups:
+bash scripts/update.sh
+bash scripts/healthcheck.sh
+bash scripts/backup.sh
+```
+
+Fresh environments can be initialized with `python3 scripts/env.py init .env`.
+Nginx/certificate changes require a separate explicit `scripts/nginx.sh --apply`
+invocation. See the runbook for demo mode, restore, rollback and safe adoption by
+an existing installation. These scripts use `docker-compose.prod.yml`; the older
+`deploy/` Caddy workflow remains a separate option. See the
+[audit and validation report](docs/DEPLOYMENT_AUDIT.md) for tested scope and limits.
+
 ## Run it on your computer
 
 You need **Git** and **Python 3.12**. These commands are for Windows PowerShell; on macOS or Linux use `python3.12` and `.venv/bin/python`.

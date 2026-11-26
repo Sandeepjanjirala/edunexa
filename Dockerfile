@@ -12,7 +12,7 @@ COPY . .
 # Static files are collected into the image, so a container starts without writing them. The
 # build settings need no secrets (config/settings/build.py).
 RUN DJANGO_SETTINGS_MODULE=config.settings.build python manage.py collectstatic --noinput \
-    && useradd --create-home appuser && chown -R appuser:appuser /app
+    && useradd --create-home appuser && mkdir -p /app/media && chown -R appuser:appuser /app
 USER appuser
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=6s --start-period=30s --retries=3 \

@@ -1,4 +1,9 @@
 .env
+.env.*
+!.env.example
+!.env.production.example
+.deploy/
+media/
 # Database backups made by deploy/backup.sh: personal data, never in Git.
 deploy/backups/
 .venv/

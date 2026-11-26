@@ -5,9 +5,13 @@
 name: ${COMPOSE_PROJECT_NAME:-edunexa}
 
 x-app: &app
-  image: edunexa:latest
+  image: ${EDUNEXA_IMAGE:-edunexa:latest}
   build: .
-  env_file: .env
+  env_file: ${EDUNEXA_ENV_FILE:-.env}
+  init: true
+  stop_grace_period: 90s
+  volumes:
+    - media_data:/app/media
   environment:
     DJANGO_SETTINGS_MODULE: config.settings.prod
     DATABASE_URL: postgresql://edunexa:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/edunexa?sslmode=disable
@@ -101,7 +105,9 @@ services:
   redis:
     image: redis:7.4-alpine
     restart: unless-stopped
-    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
+    command: ["redis-server", "--save", "", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -116,3 +122,5 @@ services:
 
 volumes:
   postgres_data:
+  media_data:
+  redis_data:

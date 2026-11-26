@@ -1,4 +1,6 @@
 .git
+.deploy
+media
 # Secrets and backups (personal data) never go into the image.
 **/.env
 **/.env.*
