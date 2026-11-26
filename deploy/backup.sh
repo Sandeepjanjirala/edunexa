@@ -8,7 +8,9 @@
 # same disk does not survive losing that disk.
 set -eu
 cd "$(dirname "$0")"
-compose="docker compose -f compose.production.yaml ${COMPOSE_EXTRA:-}"
+# EDUNEXA_COMPOSE_FILE picks the stack: deploy/compose.production.yaml (Caddy, the default) or,
+# behind an existing nginx, ../docker-compose.prod.yml.
+compose="docker compose -f ${EDUNEXA_COMPOSE_FILE:-compose.production.yaml} ${COMPOSE_EXTRA:-}"
 mkdir -p backups
 chmod 700 backups
 archive="backups/edunexa-$(date -u +%Y%m%d-%H%M%S).dump"
