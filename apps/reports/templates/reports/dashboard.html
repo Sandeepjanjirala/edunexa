@@ -20,19 +20,19 @@
   <section class="welcome">
     <p class="eyebrow">Your campus, at a glance</p>
     <h2>Good to see you, {{ user.first_name|default:user.username }}.</h2>
-    <p>A clear view of the school day, with a little more space to focus on what matters.</p>
+    <p>Monitor daily activity and follow up on items that need attention.</p>
     {% include "components/logo_mark.html" %}
   </section>
 
   <div class="grid-stats">
-    {% include "components/stat_card.html" with label="Active students" value=stats.students hint="Within your access" only %}
-    {% include "components/stat_card.html" with label="Classrooms" value=stats.classes hint="Across academic years" only %}
+    {% include "components/stat_card.html" with label="Active students" value=stats.students hint="Within your access" icon="users" only %}
+    {% include "components/stat_card.html" with label="Classrooms" value=stats.classes hint="Across academic years" icon="layers" only %}
     {% if stats.attendance is None %}
-      {% include "components/stat_card.html" with label="Today’s attendance" value=None hint="No registers recorded yet today" only %}
+      {% include "components/stat_card.html" with label="Today’s attendance" value=None hint="No registers recorded yet today" icon="calendar-check" only %}
     {% else %}
-      {% include "components/stat_card.html" with label="Today’s attendance" value=stats.attendance unit="%" hint="From recorded registers" only %}
+      {% include "components/stat_card.html" with label="Today’s attendance" value=stats.attendance unit="%" hint="From recorded registers" icon="calendar-check" only %}
     {% endif %}
-    {% include "components/stat_card.html" with label="Results to review" value=stats.pending hint="Awaiting principal approval" only %}
+    {% include "components/stat_card.html" with label="Results to review" value=stats.pending hint="Awaiting principal approval" icon="clipboard" only %}
   </div>
 
   {% if todays_lessons is not None %}

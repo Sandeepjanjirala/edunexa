@@ -1,0 +1,67 @@
+/* Brief interaction feedback for a working ERP. No ambient motion or animated data. */
+.btn,
+.icon-button,
+.topbar-link,
+.nav a,
+.pagination a,
+.status-option,
+input,
+select,
+textarea {
+  transition: background-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+.table td,
+.assistant-copy {
+  transition: background-color var(--motion-fast) ease, opacity var(--motion-fast) ease;
+}
+
+.btn:not(:disabled):hover {
+  box-shadow: 0 2px 5px rgb(15 23 42 / 0.1);
+}
+
+.btn:disabled:hover {
+  box-shadow: none;
+}
+
+form.htmx-request .btn[type="submit"] {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-header,
+  .auth-box {
+    animation: surface-enter var(--motion-panel) var(--motion-ease);
+  }
+
+  .alert,
+  .cell-saved,
+  .assistant-exchange {
+    animation: feedback-enter var(--motion-normal) ease-out;
+  }
+
+  .sidebar-backdrop:not([hidden]) {
+    animation: feedback-enter var(--motion-normal) ease-out;
+  }
+}
+
+@keyframes surface-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes feedback-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media print {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

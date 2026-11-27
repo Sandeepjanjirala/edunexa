@@ -2,24 +2,25 @@
 // payment id and signature are posted to EduNexa, which verifies them and asks Razorpay for the
 // real amount before recording anything. The options come from a json_script block, so the
 // Content-Security-Policy needs no inline script.
-(function () {
+(function ($) {
   "use strict";
 
-  document.addEventListener("DOMContentLoaded", function () {
-    var button = document.querySelector("[data-razorpay-open]");
-    var data = document.getElementById("razorpay-options");
-    var form = document.getElementById("razorpay-result");
-    if (!button || !data || !form || typeof window.Razorpay !== "function") {
+  $(function () {
+    var $button = $("[data-razorpay-open]");
+    var $data = $("#razorpay-options");
+    var $form = $("#razorpay-result");
+    if (!$button.length || !$data.length || !$form.length || typeof window.Razorpay !== "function") {
       return;
     }
-    var options = JSON.parse(data.textContent);
+    var options = JSON.parse($data.text());
     options.handler = function (result) {
-      form.elements.razorpay_payment_id.value = result.razorpay_payment_id;
-      form.elements.razorpay_signature.value = result.razorpay_signature;
-      form.submit();
+      $form.find('[name="razorpay_payment_id"]').val(result.razorpay_payment_id);
+      $form.find('[name="razorpay_signature"]').val(result.razorpay_signature);
+      // Preserve the SDK callback's native POST and its server-side payment verification.
+      $form[0].submit();
     };
-    button.addEventListener("click", function () {
+    $button.on("click.edunexaCheckout", function () {
       new window.Razorpay(options).open();
     });
   });
-})();
+})(jQuery);

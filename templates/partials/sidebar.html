@@ -1,9 +1,12 @@
 {% load ui %}
 <aside class="sidebar" id="sidebar">
-  <a class="brand" href="{% url 'dashboard' %}">
-    {% include "components/logo_mark.html" %}
-    <span class="brand-text">{{ brand.name }}<small>{{ brand.tagline }}</small></span>
-  </a>
+  <div class="sidebar-header">
+    <a class="brand" href="{% url 'dashboard' %}">
+      {% include "components/logo_mark.html" %}
+      <span class="brand-text">{{ brand.name }}<small>{{ brand.tagline }}</small></span>
+    </a>
+    <button class="icon-button sidebar-close" type="button" data-nav-close aria-label="Close navigation">{% icon 'x' %}</button>
+  </div>
 
   <div class="workspace">
     <span class="workspace-dot" aria-hidden="true"></span>

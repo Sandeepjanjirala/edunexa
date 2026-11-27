@@ -18,17 +18,42 @@
 /* App shell */
 
 .sidebar {
+  --color-text: var(--sidebar-text);
+  --color-text-muted: var(--sidebar-text);
+  --color-text-subtle: var(--sidebar-muted);
+  --color-border: var(--sidebar-border);
+  --color-surface-muted: var(--sidebar-surface);
+  --color-surface-tint: var(--sidebar-surface);
+  --color-primary-soft: var(--sidebar-active);
+  --color-primary: var(--sidebar-accent);
+  --color-focus: var(--sidebar-accent);
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 30;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.1rem;
   width: var(--sidebar-width);
-  padding: 1.5rem 1rem 1rem;
+  padding: 1.5rem 0.875rem 1rem;
   overflow-y: auto;
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  border-right: 1px solid var(--sidebar-border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-border) transparent;
+  overscroll-behavior: contain;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sidebar .sidebar-close,
+.sidebar-backdrop {
+  display: none;
 }
 
 .shell {
@@ -46,9 +71,8 @@
   align-items: center;
   gap: 1rem;
   height: var(--topbar-height);
-  padding: 0 2rem;
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  backdrop-filter: blur(10px);
+  padding: 0 1.75rem;
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -62,7 +86,7 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.75rem;
 }
 
 .page-header {
@@ -71,7 +95,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .page-actions {
@@ -247,14 +271,55 @@
 }
 
 @media (max-width: 860px) {
+  body.nav-open {
+    overflow: hidden;
+  }
+
   .sidebar {
+    z-index: 70;
+    width: min(300px, calc(100vw - 3rem));
     transform: translateX(-100%);
-    transition: transform 0.2s ease;
+    visibility: hidden;
+    transition: transform var(--motion-panel) var(--motion-ease),
+      visibility 0s linear var(--motion-panel);
   }
 
   .sidebar.open {
+    visibility: visible;
     transform: none;
+    transition-delay: 0s;
     box-shadow: var(--shadow-overlay);
+  }
+
+  .sidebar .sidebar-close {
+    display: inline-grid;
+    flex-shrink: 0;
+    color: var(--sidebar-text);
+  }
+
+  .sidebar .sidebar-close:hover {
+    background: var(--sidebar-active);
+  }
+
+  .sidebar-backdrop:not([hidden]) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgb(8 17 32 / 0.5);
+  }
+
+  /* Without scripts, keep the ordinary navigation links reachable above the page. */
+  html:not(.js) .sidebar {
+    position: static;
+    width: 100%;
+    visibility: visible;
+    transform: none;
+  }
+
+  html:not(.js) .sidebar-close,
+  html:not(.js) .topbar .menu-button {
+    display: none;
   }
 
   .shell {
@@ -355,6 +420,10 @@
   .pagination,
   .alert,
   .skip-link {
+    display: none !important;
+  }
+
+  .sidebar-backdrop {
     display: none !important;
   }
 

@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
   <link rel="stylesheet" href="{% static 'css/layout.css' %}">
   <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/motion.css' %}">
+  {# Local, pinned jQuery loads before the pre-paint theme bootstrap; never async/defer here. #}
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
   <script src="{% static 'js/theme.js' %}"></script>
   <script defer src="{% static 'js/app.js' %}"></script>
   {% if user.is_authenticated %}
@@ -23,6 +26,7 @@
 
   {% if user.is_authenticated %}
     {% include "partials/sidebar.html" %}
+    <div class="sidebar-backdrop" data-nav-backdrop hidden aria-hidden="true"></div>
     <div class="shell">
       {% include "partials/topbar.html" %}
       <main id="main" class="page">

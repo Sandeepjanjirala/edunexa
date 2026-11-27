@@ -1,9 +1,13 @@
 {% comment %}
   A headline number. Parameters: label, value (None shows a dash), unit (e.g. "%"),
-  total (shown as "/ total"), hint, exact (the full figure, shown on hover).
+  total (shown as "/ total"), hint, exact (the full figure, shown on hover), optional icon.
 {% endcomment %}
+{% load ui %}
 <article class="stat-card">
-  <span class="stat-label">{{ label }}</span>
+  <div class="stat-heading">
+    <span class="stat-label">{{ label }}</span>
+    {% if icon %}<span class="stat-icon" aria-hidden="true">{% icon icon %}</span>{% endif %}
+  </div>
   <strong class="stat-value"{% if exact %} title="{{ exact }}"{% endif %}>
     {% if value is None %}—{% else %}{{ value }}{% if unit %}<span class="stat-unit">{{ unit }}</span>{% endif %}{% if total is not None %}<span class="stat-unit">/ {{ total }}</span>{% endif %}{% endif %}
   </strong>

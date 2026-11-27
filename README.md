@@ -62,6 +62,11 @@ EduNexa runs the daily work of a school group: branches, classrooms and teachers
 | Saves that scale | A register or mark sheet is checked row by row, then written in bulk, in the same number of queries for 5 students or 50 (a test checks this). |
 | Tested | 539 tests (plus about 1,200 table-driven cases, such as every API endpoint for every role) with about 94% coverage, run on PostgreSQL; CI fails below 85%. CI also runs lint, a migration check, an OpenAPI schema check, a dependency vulnerability scan, the browser tests, the Docker Compose stack with 69 API checks, the upgrade and migration rehearsals, and the production rehearsal. |
 
+The frontend uses Django templates, custom CSS, **jQuery 4.1.0** for application
+interactions, HTMX for partial-page updates, and Chart.js for dashboard charts.
+These libraries are served locally; see [the frontend architecture](docs/ARCHITECTURE.md)
+and [vendored dependency versions](static/vendor/README.md).
+
 ## Deploy on the shared Ubuntu VPS
 
 For host Nginx, Cloudflare Full (strict), port 8002 and the existing Video Studio

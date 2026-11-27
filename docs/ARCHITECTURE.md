@@ -124,9 +124,12 @@ Dashboard aggregates over every attendance row (the 30-day trend, students below
 Server-rendered Django templates with no build step:
 
 - `static/css/tokens.css` defines every colour, font and radius. Dark mode redefines only those tokens.
-- `base.css`, `layout.css` and `components.css` hold the rest. Templates combine classes; pages add no CSS of their own.
+- `base.css`, `layout.css` and `components.css` define the shared ERP layout: navy navigation, compact data cards, consistent tables and form controls. Templates combine classes; pages add no CSS of their own.
+- `motion.css` keeps interaction feedback between 120 and 220 ms: colour/focus transitions, a small header entrance, mobile navigation and message fades. Avoid ambient animation or moving data rows. The system's reduced-motion preference disables CSS motion and Chart.js animation, including when that preference changes while a page is open.
+- Below 861 px, navigation opens as a modal drawer with a backdrop, keyboard focus containment, Escape/close controls and focus restoration. Background regions become inert only while it is open; resizing to desktop restores them. Without JavaScript the navigation stays in the page flow.
 - `static/img/icons.svg` is one icon sprite, drawn with `{% icon %}`.
-- `static/js/` adds small enhancements: the mobile menu, confirmations, printing, the theme toggle (charts redraw with it). Every page works without JavaScript.
+- `static/js/` uses **jQuery 4.1.0** for DOM selection, attributes, form values and event handlers: the mobile menu, confirmations, printing, theme toggle, assistant panel and checkout. jQuery is vendored and hash-checked, loaded once before the early theme bootstrap. Standard forms and links remain usable without JavaScript; charts and embedded Razorpay checkout require it.
+- Handlers for content replaced by htmx use delegated, namespaced jQuery events. Read changing `data-*` attributes with `.attr()` (not jQuery's cached `.data()`), and use `.text()` for user/assistant content. Native bridges remain for APIs jQuery does not replace: capture-phase submit cancellation, native events consumed by htmx, `requestSubmit()`/payment POST, storage, clipboard, chart observation and scrolling. Keep these bridges when modifying the UI: a bubbling confirmation can run after htmx already sends the request, and `.trigger()` alone does not notify native custom-event listeners.
 - **htmx** (vendored, hash-checked) saves timetable cells and the attendance register in place and filters lists as you type. Its config turns off `eval`, inline scripts and injected styles; every htmx form is also a plain form ([ADR 0011](adr/0011-timetable-and-htmx.md)).
 - There are no inline scripts, so the Content-Security-Policy can forbid them.
 
