@@ -10,6 +10,55 @@ root as the deployment user unless `sudo` is shown. They do not install packages
 change Cloudflare, change other applications or publish database/cache ports.
 Updates have a maintenance window; this is **not zero downtime**.
 
+## Already deployed: update from GitHub main
+
+In your VPS SSH terminal, enter the **existing repository folder** that contains
+`docker-compose.prod.yml` and your production `.env`. Replace the example path
+below with your actual folder. Keep the terminal connected until the command
+reports success.
+
+```bash
+cd /path/to/existing/edunexa
+git status --short
+bash scripts/update.sh origin/main
+```
+
+The status should be empty. The explicit `origin/main` argument also works with
+the earlier updater. It takes a backup before advancing the checkout, fetches
+main, builds the image, backs up again with writers stopped, migrates, collects
+static files, restarts web/Celery/scheduler and verifies health including HTTPS.
+The updater handles the Git fetch and fast-forward itself. Your existing `.env`,
+Compose project and database volume stay in place; working Nginx/SSL configuration
+needs no changes for a UI update.
+
+After it reports success:
+
+```bash
+docker compose --env-file .env -f docker-compose.prod.yml ps
+git rev-parse --short=12 HEAD
+cat .deploy/deployed-revision
+```
+
+Open the website and use **Ctrl+F5** to load the new theme. Future updates use
+`bash scripts/update.sh`; it now defaults to `origin/main`. Run
+`bash scripts/update.sh --help` for usage without starting a deployment.
+
+If Git reports local edits or commits absent from GitHub, the updater stops;
+preserve and reconcile them before retrying. If deployment fails, inspect the
+scoped logs below and retry the same update command after fixing the cause. A
+retry still runs deployment even if the checkout is already current. The
+`.deploy/deployed-revision` file records the last successful deployment;
+`.deploy/before-revision` records the checkout before the most recent attempt.
+
+```bash
+docker compose --env-file .env -f docker-compose.prod.yml logs --tail 100 web worker beat
+```
+
+If `scripts/update.sh` does not exist in the deployed checkout, complete
+[adoption of the existing installation](#adopting-this-on-the-already-deployed-vps)
+first, including a backup using the current stack before fetching new code. These
+commands apply to the host-Nginx stack, not the separate Caddy installation.
+
 ## Prerequisites and shared-server safety
 
 Have the administrator install Docker Engine, the Compose v2 plugin (with
@@ -164,8 +213,8 @@ declare a successful verification.
 
 ## Updating
 
-After the changes in this branch have been reviewed and published through your
-normal approval process, use a clean checkout with an upstream branch:
+For subsequent published releases, use a clean checkout. The default target is
+`origin/main`, including when the local branch has no configured upstream:
 
 ```bash
 bash scripts/update.sh
@@ -174,7 +223,8 @@ bash scripts/update.sh origin/main
 ```
 
 The update checks Git status, records HEAD, creates a verified backup, fetches
-origin and permits only a fast-forward to the intended revision. It then builds
+origin and resolves the intended revision to a commit. It refuses local commits
+absent from that target, then fast-forwards to that exact commit. It then builds
 and validates the image, stops web/worker/beat, waits for dependencies, creates
 another backup with writers stopped, runs migrations and static collection in
 one-off containers, and recreates application services. The image contains its
@@ -260,8 +310,8 @@ or use the compatible-image rollback above. No automatic schema reversal occurs.
 
 ## Adopting this on the already-deployed VPS
 
-Do this only after approving/publishing this branch; no live VPS changes were
-made during implementation.
+Use this section when adopting the automation for the first time on an existing
+installation. No live VPS changes were made during implementation.
 
 1. Schedule a maintenance window and take an off-host database backup using the
    current installation. Record the current image ID and Git revision.

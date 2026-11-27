@@ -183,7 +183,8 @@
   gap: 2.5rem;
   padding: 3rem;
   overflow: hidden;
-  background: linear-gradient(150deg, var(--color-brand-panel), var(--color-brand-panel-end));
+  isolation: isolate;
+  background: linear-gradient(155deg, var(--color-brand-panel) 20%, var(--color-brand-panel-end));
   color: var(--color-brand-panel-text);
 }
 
@@ -214,29 +215,35 @@
 }
 
 .auth-story h1 em {
-  color: #67e8f9;
+  color: var(--color-primary);
+  font-style: normal;
 }
 
-.auth-story-mark {
+.auth-story::before {
+  content: "";
   position: absolute;
-  right: -4rem;
-  bottom: -4rem;
-  width: 22rem;
-  height: 22rem;
-  opacity: 0.08;
-  transform: rotate(-12deg);
+  z-index: -1;
+  inset: 30% 0 0;
+  background: url("../img/alpine-sky.svg") 70% bottom / auto 80% no-repeat;
+  opacity: var(--hero-art-opacity);
+  pointer-events: none;
 }
 
 .auth-panel {
   display: grid;
   place-items: center;
   padding: 3rem 1.5rem;
-  background: var(--color-surface);
+  background: var(--color-bg);
 }
 
 .auth-box {
   width: 100%;
-  max-width: 24rem;
+  max-width: 29rem;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
 }
 
 .auth-box h2 {
@@ -368,6 +375,10 @@
     align-items: start;
     padding: 2.5rem 1.5rem;
   }
+
+  .auth-box {
+    padding: 1.5rem;
+  }
 }
 
 @media (max-width: 560px) {
@@ -398,13 +409,17 @@
     --color-bg: #ffffff;
     --color-surface: #ffffff;
     --color-surface-muted: #f8fafc;
-    --color-surface-tint: #eef2ff;
+    --color-surface-tint: #eaf2ff;
     --color-border: #d9d9d9;
     --color-border-strong: #c4c4c4;
     --color-text: #111111;
     --color-text-muted: #444444;
     --color-text-subtle: #666666;
-    --color-primary: #4f46e5;
+    --color-primary: #2368d1;
+    --hero-start: #ffffff;
+    --hero-end: #ffffff;
+    --hero-panel: #ffffff;
+    --hero-border: #d9d9d9;
     --shadow-sm: none;
   }
 
@@ -425,6 +440,11 @@
 
   .sidebar-backdrop {
     display: none !important;
+  }
+
+  .welcome::before,
+  .auth-story::before {
+    display: none;
   }
 
   .shell {

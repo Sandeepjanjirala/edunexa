@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static ui money %}
+{% load static ui money l10n %}
 
 {% block scripts %}
   <script defer src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
@@ -18,10 +18,22 @@
 
 {% block content %}
   <section class="welcome">
-    <p class="eyebrow">Your campus, at a glance</p>
-    <h2>Good to see you, {{ user.first_name|default:user.username }}.</h2>
-    <p>Monitor daily activity and follow up on items that need attention.</p>
-    {% include "components/logo_mark.html" %}
+    <div class="welcome-copy">
+      <p class="eyebrow">Your campus, at a glance</p>
+      <h2>Hi, {{ user.first_name|default:user.username }}.</h2>
+      <p>Your school day, in focus. Attendance, results and follow-ups in one place.</p>
+    </div>
+    <div class="welcome-summary">
+      <span class="welcome-summary-label">{% icon 'calendar-check' %} Today's attendance</span>
+      {% if stats.attendance is None %}
+        <strong class="welcome-summary-empty">Awaiting registers</strong>
+        <p>No attendance recorded today.</p>
+      {% else %}
+        <strong class="welcome-summary-value">{{ stats.attendance }}<span>%</span></strong>
+        <meter class="bar welcome-meter" min="0" max="100" value="{{ stats.attendance|unlocalize }}" aria-label="Today's attendance from recorded registers">{{ stats.attendance }}%</meter>
+        <p>Based on today's recorded registers.</p>
+      {% endif %}
+    </div>
   </section>
 
   <div class="grid-stats">

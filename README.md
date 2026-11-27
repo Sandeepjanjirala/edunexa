@@ -76,8 +76,9 @@ and Compose project when upgrading; do not replace production credentials.
 ```bash
 # After first-time environment, DNS and TLS setup in the runbook:
 bash scripts/deploy.sh
-# Future approved updates, health verification and backups:
-bash scripts/update.sh
+# Existing VPS: back up, fetch main, build, migrate, restart and verify:
+bash scripts/update.sh origin/main
+# Optional standalone health verification and backup:
 bash scripts/healthcheck.sh
 bash scripts/backup.sh
 ```
@@ -88,6 +89,11 @@ invocation. See the runbook for demo mode, restore, rollback and safe adoption b
 an existing installation. These scripts use `docker-compose.prod.yml`; the older
 `deploy/` Caddy workflow remains a separate option. See the
 [audit and validation report](docs/DEPLOYMENT_AUDIT.md) for tested scope and limits.
+
+For an already-deployed site, follow the [SSH update quick start](docs/VPS_DEPLOYMENT.md#already-deployed-update-from-github-main).
+The updater handles fetching and fast-forwarding Git; after this release,
+`bash scripts/update.sh` defaults to `origin/main`. It stops on local edits or
+divergent history and preserves the existing environment and database volumes.
 
 ## Run it on your computer
 

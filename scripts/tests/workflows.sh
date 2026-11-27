@@ -18,6 +18,7 @@ git() {
     case $1 in
         status) [[ ${DIRTY:-0} == 0 ]] || echo changed ;;
         rev-parse) echo testrevision ;;
+        merge-base) [[ ${DIVERGED:-0} == 0 ]] ;;
     esac
 }
 backup_data() { echo backup >> "$CALLS"; [[ ${BACKUP_FAIL:-0} == 0 ]]; }
@@ -36,12 +37,22 @@ if grep -Eq 'git fetch|git merge' "$CALLS"; then exit 1; fi
 : > "$CALLS"
 bash "$work/scripts/update.sh" origin/main
 grep -q '^backup$' "$CALLS"
-grep -q '^git merge --ff-only -- origin/main$' "$CALLS"
+grep -Fq 'git rev-parse --verify --end-of-options origin/main^{commit}' "$CALLS"
+grep -q '^git merge --ff-only -- testrevision$' "$CALLS"
 grep -q '^release$' "$CALLS"
+: > "$CALLS"
+bash "$work/scripts/update.sh"
+grep -Fq 'git rev-parse --verify --end-of-options origin/main^{commit}' "$CALLS"
+: > "$CALLS"
+expect_failure env DIVERGED=1 bash "$work/scripts/update.sh"
+if grep -Eq 'git merge --|^release$' "$CALLS"; then exit 1; fi
+: > "$CALLS"
+bash "$work/scripts/update.sh" --help
+[[ ! -s "$CALLS" ]]
 expect_failure bash "$work/scripts/rollback.sh"
 echo sha256:test > "$STATE/previous-image"
 : > "$CALLS"
 bash "$work/scripts/rollback.sh" --schema-compatible
 grep -q '^compose up -d --no-deps' "$CALLS"
 if grep -Eq 'migrate|restore|down' "$CALLS"; then exit 1; fi
-echo 'PASS: mocked dirty checkout and backup failure block fetch; clean update and explicit image-only rollback complete.'
+echo 'PASS: mocked dirty checkout and backup failure block fetch; default main update, divergence refusal, help and image-only rollback complete.'

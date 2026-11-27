@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" fill="none">
+  <!-- Original decorative landscape: cool ridges fading into the surrounding surface. -->
+  <defs>
+    <linearGradient id="ridge" x1="800" y1="100" x2="800" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6593cb"/><stop offset="1" stop-color="#b9d7f2" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="face" x1="900" y1="100" x2="900" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3763a7" stop-opacity=".65"/><stop offset="1" stop-color="#a0c7e9" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="snow" x1="700" y1="120" x2="700" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#edf7ff" stop-opacity=".9"/><stop offset="1" stop-color="#d1e7f8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M160 440 350 300 410 330 550 192 620 262 765 80 826 168 889 132 1008 280 1090 213 1200 295V440Z" fill="url(#ridge)"/>
+  <path d="m550 192-50 149 56-39 64 80-15-137Zm215-112-58 208 55-50 97 128-33-198Zm124 52-12 157 33-31 103 135-5-113Z" fill="url(#face)"/>
+  <path d="m765 80-88 112 45-19 12 28 31-42 25 35 14-34 22 8Zm124 52-42 59 34-12 14 23 16-25 17 8Zm-339 60-48 71 38-27 15 17 16-20 20 15Z" fill="url(#snow)"/>
+  <path d="M0 440 190 359 280 391 434 302 529 377 658 268 785 364 913 280 1072 379 1200 310V440Z" fill="url(#ridge)" opacity=".7"/>
+</svg>

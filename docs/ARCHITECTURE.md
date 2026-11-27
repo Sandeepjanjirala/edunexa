@@ -124,7 +124,7 @@ Dashboard aggregates over every attendance row (the 30-day trend, students below
 Server-rendered Django templates with no build step:
 
 - `static/css/tokens.css` defines every colour, font and radius. Dark mode redefines only those tokens.
-- `base.css`, `layout.css` and `components.css` define the shared ERP layout: navy navigation, compact data cards, consistent tables and form controls. Templates combine classes; pages add no CSS of their own.
+- `base.css`, `layout.css` and `components.css` define the shared ERP layout: icy blue surfaces, light navigation, rounded data cards and consistent tables and form controls, with matching dark-mode tokens. The palette and soft gradient hero are inspired by [Smart Ring App](https://dribbble.com/shots/27272314-Smart-Ring-App-Health-Tracking-Mobile-UI); `static/img/alpine-sky.svg` is original decorative artwork. Templates combine classes; pages add no CSS of their own. The dashboard hero uses the existing access-scoped attendance rate and distinguishes missing registers from zero attendance.
 - `motion.css` keeps interaction feedback between 120 and 220 ms: colour/focus transitions, a small header entrance, mobile navigation and message fades. Avoid ambient animation or moving data rows. The system's reduced-motion preference disables CSS motion and Chart.js animation, including when that preference changes while a page is open.
 - Below 861 px, navigation opens as a modal drawer with a backdrop, keyboard focus containment, Escape/close controls and focus restoration. Background regions become inert only while it is open; resizing to desktop restores them. Without JavaScript the navigation stays in the page flow.
 - `static/img/icons.svg` is one icon sprite, drawn with `{% icon %}`.

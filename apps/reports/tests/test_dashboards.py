@@ -84,6 +84,39 @@ class StaffDashboardTests(SchoolTestCase):
         self.assertEqual(page.context["charts"]["branches"], [])  # super admins only
         self.assertNotContains(page, 'id="branch-comparison"')
 
+    def test_attendance_summary_distinguishes_missing_registers_from_zero_and_respects_scope(self):
+        self.client.force_login(self.admin)
+        page = self.client.get(reverse("dashboard"))
+        self.assertContains(page, "Awaiting registers")
+        self.assertNotContains(page, 'class="bar welcome-meter"')
+
+        save_register(self.teacher, self.c, self.today, {self.e1.pk: "A", self.e2.pk: "A"}, 0)
+        for rate, version in ((0.0, 0), (50.0, 1)):
+            if version:
+                save_register(
+                    self.teacher,
+                    self.c,
+                    self.today,
+                    {self.e1.pk: "P", self.e2.pk: "A"},
+                    version,
+                    "Alice arrived late",
+                )
+            with self.subTest(rate=rate):
+                page = self.client.get(reverse("dashboard"))
+                self.assertEqual(page.context["stats"]["attendance"], rate)
+                self.assertNotContains(page, "Awaiting registers")
+                self.assertContains(
+                    page,
+                    f'<meter class="bar welcome-meter" min="0" max="100" value="{rate}" '
+                    f'aria-label="Today\'s attendance from recorded registers">{rate}%</meter>',
+                    html=True,
+                )
+
+        self.client.force_login(self.foreign_teacher)
+        page = self.client.get(reverse("dashboard"))
+        self.assertContains(page, "Awaiting registers")
+        self.assertNotContains(page, 'class="bar welcome-meter"')
+
 
 class FamilyDashboardTests(SchoolTestCase):
     def test_student_sees_their_own_dashboard(self):

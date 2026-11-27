@@ -1,7 +1,7 @@
 /* Design tokens: every colour, font, radius and shadow used by EduNexa.
    Dark mode redefines only these values, so components never need their own dark rules.
    EduNexa opens in the light theme; the moon button switches to dark (html[data-theme]).
-   Palette: indigo for actions, slate neutrals, a cyan accent. */
+   Palette: icy blue surfaces, clear blue actions, an orange chart accent. */
 
 :root {
   color-scheme: light;
@@ -10,39 +10,44 @@
   --font-display: var(--font-sans);
   --font-mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
   --radius-pill: 999px;
   --sidebar-width: 248px;
   --topbar-height: 64px;
 
-  --color-bg: #f3f5f9;
+  --color-bg: #f1f6fc;
   --color-surface: #ffffff;
-  --color-surface-muted: #f8fafc;
-  --color-surface-tint: #eef2ff;
-  --color-border: #e1e6ef;
-  --color-border-strong: #c9d2e1;
-  --color-text: #0f172a;
-  --color-text-muted: #475569;
-  --color-text-subtle: #64748b;
+  --color-surface-muted: #f5f8fc;
+  --color-surface-tint: #eaf2ff;
+  --color-border: #dfe8f3;
+  --color-border-strong: #8093ad;
+  --color-text: #142133;
+  --color-text-muted: #4d6078;
+  --color-text-subtle: #5a6c83;
 
-  --color-primary: #3557ce;
-  --color-primary-hover: #2947b2;
-  --color-primary-soft: #edf1fd;
+  --color-primary: #2368d1;
+  --color-primary-hover: #1953ad;
+  --color-primary-soft: #eaf2ff;
   --color-on-primary: #ffffff;
-  --color-accent: #168a9a;
-  --color-accent-soft: #ecfeff;
-  --color-accent-strong: #0e7490;
-  --color-focus: #526fe0;
+  --color-accent: #db6a20;
+  --color-accent-soft: #fff0e3;
+  --color-accent-strong: #9b4614;
+  --color-focus: #2368d1;
 
-  --sidebar-bg: #142339;
-  --sidebar-surface: #1c304b;
-  --sidebar-border: #30425c;
-  --sidebar-text: #d6e0ee;
-  --sidebar-muted: #9aacc4;
-  --sidebar-active: #263e62;
-  --sidebar-accent: #a9c5ff;
+  --sidebar-bg: #fcfdff;
+  --sidebar-surface: #f1f6fc;
+  --sidebar-border: #dfe8f3;
+  --sidebar-text: #34455c;
+  --sidebar-muted: #60738b;
+  --sidebar-active: #e7f0ff;
+  --sidebar-accent: #175dc2;
+  --hero-start: #ffffff;
+  --hero-end: #cfe4fb;
+  --hero-panel: rgb(255 255 255 / 0.94);
+  --hero-border: #b7d3f1;
+  --hero-art-opacity: 0.6;
   --motion-fast: 120ms;
   --motion-normal: 180ms;
   --motion-panel: 220ms;
@@ -57,37 +62,51 @@
   --color-info: #1d4ed8;
   --color-info-soft: #dbeafe;
 
-  /* The sign-in story panel keeps the deep indigo brand colour in both themes. */
-  --color-brand-panel: #1e1b4b;
-  --color-brand-panel-end: #312e81;
-  --color-brand-panel-text: #eef2ff;
-  --color-brand-panel-muted: #c7d2fe;
+  --color-brand-panel: #f6faff;
+  --color-brand-panel-end: #c9e1fb;
+  --color-brand-panel-text: #142133;
+  --color-brand-panel-muted: #4d6078;
 
-  --shadow-sm: 0 2px 4px rgb(15 23 42 / 0.025);
-  --shadow-md: 0 6px 20px rgb(15 23 42 / 0.07);
+  --shadow-sm: 0 4px 18px rgb(41 82 133 / 0.045);
+  --shadow-md: 0 12px 32px rgb(41 82 133 / 0.09);
   --shadow-overlay: 0 24px 64px rgb(15 23 42 / 0.28);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #0e1624;
-  --color-surface: #152033;
-  --color-surface-muted: #19273b;
-  --color-surface-tint: #1c2140;
-  --color-border: #2a3950;
-  --color-border-strong: #42536d;
+  --color-bg: #0d1726;
+  --color-surface: #152338;
+  --color-surface-muted: #1b2c43;
+  --color-surface-tint: #203958;
+  --color-border: #2d425e;
+  --color-border-strong: #728aa8;
   --color-text: #f1f5f9;
-  --color-text-muted: #acb9cc;
+  --color-text-muted: #b4c2d5;
   --color-text-subtle: #94a6bf;
-  --sidebar-bg: #0c1625;
-  --color-primary: #818cf8;
-  --color-primary-hover: #a5b4fc;
-  --color-primary-soft: #232659;
+  --sidebar-bg: #101b2c;
+  --sidebar-surface: #182a43;
+  --sidebar-border: #2d425e;
+  --sidebar-text: #dce9f9;
+  --sidebar-muted: #a0b7d2;
+  --sidebar-active: #213b61;
+  --sidebar-accent: #8fbdff;
+  --hero-start: #172a43;
+  --hero-end: #244c78;
+  --hero-panel: rgb(19 38 62 / 0.96);
+  --hero-border: #44698e;
+  --hero-art-opacity: 0.2;
+  --color-brand-panel: #122136;
+  --color-brand-panel-end: #244c78;
+  --color-brand-panel-text: #f1f5f9;
+  --color-brand-panel-muted: #bed0e5;
+  --color-primary: #8ab9ff;
+  --color-primary-hover: #b2d1ff;
+  --color-primary-soft: #203b5e;
   --color-on-primary: #0b0f19;
-  --color-accent: #22d3ee;
-  --color-accent-soft: #083344;
-  --color-accent-strong: #67e8f9;
-  --color-focus: #a5b4fc;
+  --color-accent: #f7a765;
+  --color-accent-soft: #3e2b20;
+  --color-accent-strong: #ffc28c;
+  --color-focus: #8ab9ff;
   --color-success: #4ade80;
   --color-success-soft: #052e16;
   --color-warning: #fbbf24;

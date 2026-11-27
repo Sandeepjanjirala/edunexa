@@ -26,6 +26,7 @@ jobs:
           shellcheck -x scripts/*.sh scripts/tests/*.sh
           bash scripts/tests/failures.sh
           bash scripts/tests/workflows.sh
+          bash scripts/tests/update_git.sh
       - run: docker build -t edunexa:reliability-test .
       - name: Nginx rollback with mocked services in disposable container
         run: docker run --rm --user root -v "$PWD:/work:ro" -w /work edunexa:reliability-test bash scripts/tests/nginx_failure.sh --isolated-test-container
