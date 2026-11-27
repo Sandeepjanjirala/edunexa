@@ -7,7 +7,7 @@ from apps.accounts.models import User
 
 from .agent import AssistantBusy, AssistantUnavailable, ask
 from .forms import QuestionForm
-from .policies import can_use_assistant, may_ask
+from .policies import can_use_assistant, can_view_assistant, may_ask
 
 # The conversation lives in the session: the last KEEP exchanges are shown, and the last
 # CONTEXT go to the model with a new question so it can follow up ("and her attendance?").
@@ -20,8 +20,26 @@ CONTEXT = 6
 def assistant(request):
     """Ask a question. With htmx, only the new exchange is returned and added to the page;
     without JavaScript, the page reloads with the whole conversation."""
-    if not can_use_assistant(request.user):
+    if not can_view_assistant(request.user):
         raise Http404
+    if not can_use_assistant(request.user):
+        if request.method == "POST" and request.headers.get("HX-Request"):
+            return render(
+                request,
+                "assistant/_exchange.html",
+                {
+                    "exchange": {
+                        "question": request.POST.get("question", "")[:2000],
+                        "answer": "Gemini is not connected. Configure the server's GEMINI_API_KEY and restart web.",
+                        "failed": True,
+                    }
+                },
+            )
+        return render(
+            request,
+            "assistant/assistant.html",
+            {"title": "AI assistant", **chat(request, QuestionForm())},
+        )
     conversation = request.session.get(SESSION_KEY, [])
     form = QuestionForm(request.POST or None)
     if request.method == "POST" and not form.is_valid() and request.headers.get("HX-Request"):
@@ -47,7 +65,7 @@ def assistant(request):
 def panel(request):
     """The conversation in the panel that the "Ask AI" button opens beside any page. htmx loads
     it when the panel is first opened; `page` is the title of the page underneath."""
-    if not can_use_assistant(request.user):
+    if not can_view_assistant(request.user):
         raise Http404
     page = request.GET.get("page", "")[:120]
     return render(request, "assistant/_chat.html", chat(request, QuestionForm(), page))
@@ -117,6 +135,8 @@ def answer(user, question, conversation, page=""):
 @login_required
 @require_POST
 def clear(request):
+    if not can_view_assistant(request.user):
+        raise Http404
     request.session.pop(SESSION_KEY, None)
     if request.headers.get("HX-Request"):
         # The panel's "New conversation": it starts afresh in place, on the same page.

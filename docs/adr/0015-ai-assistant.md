@@ -8,7 +8,7 @@ People ask EduNexa the same questions every day: who is below 75% attendance, ho
 
 ## Decision
 
-A new app, `apps.assistant`, in the top layer next to `reports`. Its page (`/assistant/`, "AI assistant" in the sidebar) is open to every role once `GEMINI_API_KEY` is set; without the key the app is switched off and the page is a 404.
+A new app, `apps.assistant`, in the top layer next to `reports`. Its page (`/assistant/`, "AI assistant" in the sidebar) is open to every role once `GEMINI_API_KEY` is set. Without a key, ordinary users cannot access it (404), while active system administrators can open a setup message from the sidebar or right-side panel. Missing configuration no longer silently hides the feature from the person who can restore it.
 
 - **An "Ask AI" button on every page** opens the same conversation in a panel on the right (Ctrl+/ too; Esc closes it). htmx loads the panel's conversation when it is first opened, so pages cost nothing until then, and an open panel stays open on the next page. The panel sends the title of the page underneath with each question, so "how do I use this page?" has an answer. Without JavaScript the button is a link to the assistant page.
 
@@ -22,7 +22,7 @@ A new app, `apps.assistant`, in the top layer next to `reports`. Its page (`/ass
 
 ## Consequences
 
-- A question, and the records the tools return to answer it, are sent to Google. The page says so. A school that may not send pupils' data to Google leaves `GEMINI_API_KEY` empty.
+- A question, and the records the tools return to answer it, are sent to Google. The page says so. A school that may not send pupils' data to Google leaves `GEMINI_API_KEY` empty; the admin setup state sends no requests. `python manage.py check_assistant` explicitly tests the configured Gemini connection with one synthetic prompt and no school records. Provider errors are sanitized before logging or displaying them. The integration explicitly selects the Gemini Developer API rather than inferring Vertex AI from unrelated environment settings.
 - Answers can be wrong; the page says to check anything important on its own page. The instructions tell the model to answer only from tool results and to treat text inside records (announcements, leave reasons) as data, not instructions. Because the tools are read-only and scoped, a misled model can only show the user what they could already see.
 - Gemini's free tier allows only a few requests a minute per key, and each question takes two or three model calls. When the limit is reached the user is told the assistant is busy. A school using the assistant in earnest needs a paid key.
 - Tests never call Gemini: they run the real graph and tools against a scripted fake model.

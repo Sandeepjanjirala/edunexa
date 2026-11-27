@@ -101,6 +101,7 @@ def chat_model():
     return ChatGoogleGenerativeAI(
         model=settings.ASSISTANT_MODEL,
         google_api_key=settings.GEMINI_API_KEY,
+        vertexai=False,
         timeout=60,
         max_retries=2,
     )
@@ -185,7 +186,9 @@ def ask(user, question, history=(), page=""):
         logger.warning("The assistant reached Gemini's rate limit.")
         raise AssistantBusy from error
     except Exception as error:
-        logger.exception("The assistant failed to answer.")
+        # Provider exception text can contain request data or credentials. Keep logs
+        # useful without recording the raw exception, prompts or school records.
+        logger.error("The assistant failed to answer (%s).", type(error).__name__)
         raise AssistantUnavailable from error
     # Markdown emphasis would show as stray asterisks: the page prints plain text.
     answer = result["messages"][-1].text.replace("**", "").strip()

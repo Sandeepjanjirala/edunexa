@@ -9,12 +9,14 @@
 <aside class="assistant-panel" id="assistant-panel" aria-labelledby="assistant-panel-title" hidden>
   <header class="assistant-panel-header">
     <h2 id="assistant-panel-title">{% icon 'sparkles' %}AI assistant</h2>
+    {% if can_use_assistant %}
     <form method="post" action="{% url 'assistant_clear' %}"
           hx-post="{% url 'assistant_clear' %}" hx-target="#assistant-panel-body">
       {% csrf_token %}
       <input type="hidden" name="page" value="{{ title }}">
       <button class="icon-button" type="submit" aria-label="New conversation" title="New conversation">{% icon 'rotate' %}</button>
     </form>
+    {% endif %}
     <a class="icon-button" href="{% url 'assistant' %}" aria-label="Open the full page" title="Open the full page">{% icon 'maximize' %}</a>
     <button class="icon-button" type="button" data-assistant-close aria-label="Close" title="Close (Esc)">{% icon 'x' %}</button>
   </header>

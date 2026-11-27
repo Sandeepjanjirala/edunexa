@@ -1,4 +1,13 @@
 {% load ui %}
+{% if not can_use_assistant %}
+  <div class="assistant-setup" role="status">
+    {% icon 'sparkles' %}
+    <h2>Connect your AI assistant</h2>
+    <p>The assistant is installed, but Gemini isn't connected on this server yet.</p>
+    <p>Set <code>GEMINI_API_KEY</code> in the server's <code>.env</code> file, then recreate the web container to load it.</p>
+    <p>Run <code>python manage.py check_assistant</code> inside the web container to verify the connection. Your key stays on the server.</p>
+  </div>
+{% else %}
 {# The conversation, on the assistant page and in the panel beside any page. Both forms post to #}
 {# the assistant page. With htmx, the answer is added to the conversation in place; without #}
 {# JavaScript, the page reloads. While waiting, every control is disabled and "Thinking" shows. #}
@@ -44,3 +53,4 @@
     <small class="assistant-note">Enter sends, Shift+Enter adds a line. Questions and the records needed to answer them are sent to Google Gemini. Answers can be wrong: check anything important on its page.</small>
   </form>
 </div>
+{% endif %}

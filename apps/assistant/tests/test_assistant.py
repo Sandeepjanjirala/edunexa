@@ -1,6 +1,9 @@
 import json
+from io import StringIO
 from unittest import mock
 
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import override_settings
 from django.urls import reverse
 from langchain_core.exceptions import ModelRateLimitError
@@ -83,6 +86,20 @@ class ToolScopeTests(SchoolTestCase):
 
 
 class AgentTests(SchoolTestCase):
+    def test_provider_errors_do_not_log_request_data_or_credentials(self):
+        with (
+            mock.patch(
+                "apps.assistant.agent.chat_model",
+                side_effect=ConnectionError("secret-test-key and private school records"),
+            ),
+            self.assertLogs("apps.assistant.agent") as captured,
+            self.assertRaises(AssistantUnavailable),
+        ):
+            ask(self.teacher, "Hello?")
+        self.assertIn("ConnectionError", " ".join(captured.output))
+        self.assertNotIn("secret-test-key", " ".join(captured.output))
+        self.assertNotIn("private school records", " ".join(captured.output))
+
     def test_the_model_answers_from_the_tool_results(self):
         model = scripted(call("find_students", name="alice"), "Alice is in 9-A.")
         with mock.patch("apps.assistant.agent.chat_model", return_value=model):
@@ -152,6 +169,48 @@ class AssistantPageTests(SchoolTestCase):
             self.assertEqual(self.client.get(self.url).status_code, 404)
             self.assertNotContains(self.client.get(reverse("dashboard")), 'href="/assistant/"')
         self.assertContains(self.client.get(reverse("dashboard")), 'href="/assistant/"')
+
+    @override_settings(GEMINI_API_KEY="   ")
+    def test_system_admin_sees_setup_instead_of_a_disappearing_assistant(self):
+        self.client.force_login(self.root)
+        self.assertContains(self.client.get(reverse("dashboard")), "data-assistant-open")
+        for url in (self.url, reverse("assistant_panel")):
+            response = self.client.get(url)
+            self.assertContains(response, "Connect your AI assistant")
+            self.assertContains(response, "GEMINI_API_KEY")
+            self.assertNotContains(response, "<textarea")
+        response, asked = self.post("Who is absent?", return_value="Should not run")
+        asked.assert_not_called()
+        self.assertContains(response, "is-failed")
+        self.assertNotContains(response, "<html")
+        self.assertNotIn("assistant", self.client.session)
+
+    @override_settings(GEMINI_API_KEY="")
+    def test_missing_configuration_is_visible_only_to_system_admin(self):
+        for user in (self.admin, self.teacher, self.parent, self.e1.student.user):
+            with self.subTest(role=user.role):
+                self.client.force_login(user)
+                self.assertNotContains(self.client.get(reverse("dashboard")), "data-assistant-open")
+                self.assertEqual(self.client.get(reverse("assistant_panel")).status_code, 404)
+                self.assertEqual(self.client.post(reverse("assistant_clear")).status_code, 404)
+
+    def test_all_configured_roles_see_chat_without_the_key_in_html(self):
+        for user in (
+            self.root,
+            self.admin,
+            self.teacher,
+            self.accountant,
+            self.parent,
+            self.e1.student.user,
+        ):
+            with self.subTest(role=user.role):
+                self.client.force_login(user)
+                dashboard = self.client.get(reverse("dashboard"))
+                self.assertContains(dashboard, "data-assistant-open")
+                panel = self.client.get(reverse("assistant_panel"))
+                self.assertContains(panel, "<textarea")
+                self.assertNotContains(panel, "test-key")
+                self.assertNotContains(dashboard, "test-key")
 
     def test_every_page_but_the_assistant_page_has_the_ask_ai_panel(self):
         self.assertContains(self.client.get(reverse("dashboard")), 'id="assistant-panel"')
@@ -227,3 +286,39 @@ class AssistantPageTests(SchoolTestCase):
         self.assertTemplateUsed(response, "assistant/_chat.html")
         self.assertContains(response, "How do I use the Fees page?")
         self.assertNotContains(response, "Nobody.")
+
+
+@override_settings(GEMINI_API_KEY="test-key")
+class AssistantConnectionTests(SchoolTestCase):
+    def test_connection_check_sends_only_a_synthetic_prompt(self):
+        output = StringIO()
+        with mock.patch("apps.assistant.management.commands.check_assistant.chat_model") as model:
+            model.return_value.invoke.return_value = AIMessage("OK")
+            call_command("check_assistant", stdout=output)
+        prompt = model.return_value.invoke.call_args.args[0]
+        self.assertEqual(prompt, "Connection test. Reply only with OK.")
+        self.assertIn("connection verified", output.getvalue())
+        self.assertNotIn("test-key", output.getvalue())
+
+    def test_missing_key_and_provider_errors_are_actionable_without_leaking_secrets(self):
+        with (
+            override_settings(GEMINI_API_KEY=""),
+            mock.patch("apps.assistant.management.commands.check_assistant.chat_model") as model,
+            self.assertRaisesMessage(CommandError, "Set GEMINI_API_KEY"),
+        ):
+            call_command("check_assistant")
+        model.assert_not_called()
+        for error in (
+            ConnectionError("private-key-value"),
+            ModelRateLimitError("private-key-value"),
+        ):
+            with (
+                self.subTest(error=type(error).__name__),
+                mock.patch(
+                    "apps.assistant.management.commands.check_assistant.chat_model",
+                    side_effect=error,
+                ),
+                self.assertRaises(CommandError) as raised,
+            ):
+                call_command("check_assistant")
+            self.assertNotIn("private-key-value", str(raised.exception))

@@ -97,6 +97,18 @@ class JQueryInteractionTests(BrowserTestCase):
 
 @override_settings(GEMINI_API_KEY="browser-test-only")
 class JQueryAssistantTests(BrowserTestCase):
+    @override_settings(GEMINI_API_KEY="")
+    def test_missing_key_keeps_setup_panel_visible_to_system_admin_on_phone(self):
+        page = self.open_as(self.root, "/", viewport={"width": 390, "height": 844})
+        launcher = page.locator("[data-assistant-open]")
+        launcher.click()
+        expect(page.get_by_role("heading", name="Connect your AI assistant")).to_be_visible()
+        expect(page.locator("#assistant-panel textarea")).to_have_count(0)
+        self.assertLessEqual(page.evaluate("document.documentElement.scrollWidth - innerWidth"), 0)
+        page.keyboard.press("Escape")
+        expect(page.locator("#assistant-panel")).to_be_hidden()
+        expect(launcher).to_be_focused()
+
     def test_enter_shift_enter_and_composition_after_panel_swap(self):
         with patch("apps.assistant.views.ask", return_value="A safe test answer") as ask:
             page = self.open_as(self.admin, "/")

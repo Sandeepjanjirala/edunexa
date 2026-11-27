@@ -1830,6 +1830,24 @@ details summary {
   display: none;
 }
 
+.assistant-setup {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.assistant-setup > .icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-primary);
+}
+
+.assistant-setup code {
+  overflow-wrap: anywhere;
+}
+
 @keyframes assistant-slide-in {
   from {
     transform: translateX(0.75rem);

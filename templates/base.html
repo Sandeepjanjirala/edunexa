@@ -47,7 +47,7 @@
         </footer>
       </main>
     </div>
-    {% if can_use_assistant and request.resolver_match.url_name != "assistant" %}
+    {% if can_view_assistant and request.resolver_match.url_name != "assistant" %}
       {% include "assistant/_panel.html" %}
     {% endif %}
   {% else %}

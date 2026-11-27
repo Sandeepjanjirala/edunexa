@@ -2,7 +2,7 @@
 {% load ui %}
 
 {% block actions %}
-  {% if conversation %}
+  {% if can_use_assistant and conversation %}
     <form method="post" action="{% url 'assistant_clear' %}">
       {% csrf_token %}
       <button class="btn btn-secondary" type="submit">{% icon 'rotate' %}New conversation</button>

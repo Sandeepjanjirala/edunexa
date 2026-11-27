@@ -351,6 +351,43 @@ installation. No live VPS changes were made during implementation.
    Video Studio's URL and containers before and after. Do not enable demo seeding
    on a real school database. Verify renewal as above.
 
+## Enable or restore the right-side AI assistant
+
+The LangGraph/Gemini assistant is already included. Every signed-in role gets an
+**Ask AI** button at the bottom right when `GEMINI_API_KEY` is configured in the
+running web service. The chat uses the same access restrictions as the ERP.
+An active system administrator sees a setup message if the key is missing.
+
+In the existing VPS repository, edit the production environment privately:
+
+```bash
+nano .env
+```
+
+Set `GEMINI_API_KEY` to your own key; keep it out of Git and screenshots.
+`ASSISTANT_MODEL` defaults to `gemini-3.5-flash-lite`. Pulling source code does not
+copy your computer's `.env` to the VPS. Apply this code release using the updater
+above. If you only changed the key after deploying the current release, reload
+the web container using the already-deployed image:
+
+```bash
+export EDUNEXA_IMAGE="$(cat .deploy/image)"
+docker compose --env-file .env -f docker-compose.prod.yml up -d --no-deps --force-recreate --wait --wait-timeout 180 web
+docker compose --env-file .env -f docker-compose.prod.yml exec -T web python manage.py check_assistant
+```
+
+This image reference exists after using `scripts/deploy.sh` or `scripts/update.sh`;
+older installations should complete the adoption steps first. A plain container
+restart does not load edited Compose environment values. The connection check
+makes one small Gemini request with synthetic text and prints no credentials or
+school records. A failure names key/access, model, quota or connectivity checks
+without exposing provider exception contents.
+
+Refresh the website, click **Ask AI** (or **Ctrl+/**), enter a question and press
+Enter. Shift+Enter adds a line. The panel keeps the current conversation while
+you navigate; **New conversation** clears it. For local development, set the key
+in the root `.env`, restart Django and run `python manage.py check_assistant`.
+
 ## Operations and limitations
 
 ```bash
